@@ -1,0 +1,8 @@
+{
+  "env": {
+    "jest": {
+      "presets": [["env", { "targets": { "node": "current" } }]],
+      "plugins": ["transform-es2015-modules-commonjs", "syntax-dynamic-import"]
+    }
+  }
+}
