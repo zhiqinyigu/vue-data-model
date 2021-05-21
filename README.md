@@ -5,6 +5,7 @@
 ## Example
 
 [codesandbox online](https://codesandbox.io/s/vue-model-todo-list-app-tkvof?file=/src/components/TodoList.vue)
+
 [directory](https://github.com/zhiqinyigu/vue-model/tree/master/example)
 
 ## Terminology
