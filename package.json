@@ -1,10 +1,11 @@
 {
-  "name": "vue-model",
+  "name": "@chenyican/vue-model",
   "version": "1.0.0",
   "description": "A reactive state container system based on Vue, inspired by mobx-state-tree",
   "main": "src/index.js",
   "directories": {
-    "example": "example"
+    "example": "example",
+    "test": "tests"
   },
   "scripts": {
     "lint": "eslint \"src/**/*.js\"",
@@ -42,5 +43,14 @@
       ".*\\.(js)$": "babel-jest",
       ".*\\.(vue)$": "vue-jest"
     }
-  }
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhiqinyigu/vue-model.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zhiqinyigu/vue-model/issues"
+  },
+  "homepage": "https://github.com/zhiqinyigu/vue-model#readme"
 }
