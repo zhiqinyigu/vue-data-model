@@ -1,18 +1,23 @@
-## 简介
+## Introduction
 
-一个类似[_mobx-state-tree_](https://github.com/mobxjs/mobx-state-tree)的响应式状态容器系统（reactive state container system ）。内部实现基于[_Vue_](https://github.com/vuejs/vue)，创建出来的对象是一个 vue 实例。这使得你在不熟悉*mobx-state-tree*的情况下，也能轻松上手，并且很容易在你现有的 vue 项目中使用。
+一个类似[_mobx-state-tree_](https://github.com/mobxjs/mobx-state-tree)的响应式状态容器系统（reactive state container system ）。内部实现基于[_Vue_](https://github.com/vuejs/vue)，创建出来的对象是一个 vue 实例。这使得你在不熟悉 _mobx-state-tree_ 的情况下，也能轻松上手，并且很容易在你现有的 vue 项目中使用。
 
-## 术语
+## Example
+
+[codesandbox online](https://codesandbox.io/s/vue-model-todo-list-app-tkvof?file=/src/components/TodoList.vue)
+[directory](https://github.com/zhiqinyigu/vue-model/tree/master/example)
+
+## Terminology
 
 开始之前，让我们先统一一下术语。
 
 **type(类型)**
-由 `types.xxx()` 方法创建的对象，它具备自我描述的特性，类似于*面向对象(oop)*的*类*。
+由 `types.xxx()` 方法创建的对象，它具备自我描述的特性，类似于 _面向对象(oop)_ 的 _类_。
 
 **state(状态)**
-一般通过*type(类型)*的 `create()` 方法创建的类型实体对象。
+一般通过 _type(类型)_ 的 `create()` 方法创建的类型实体对象。
 
-## 如何使用
+## How to use
 
 **step 1:** 使用 `types.vue` 定义通用类型。该方法接受 vue 组件选项（vue component options）作为唯一参数。
 

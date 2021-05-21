@@ -1,0 +1,38 @@
+.text-del {
+  text-decoration: underline;
+  opacity: 0.6;
+}
+
+.flex {
+  display: flex;
+}
+.flex-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.flex--middle {
+  align-items: center;
+}
+.flex-item {
+  flex: 1;
+  min-width: 0;
+}
+
+section {
+  padding: 20px;
+}
+
+section input + button {
+  margin-left: 10px;
+}
+
+section li {
+  margin-top: 15px !important;
+  padding: 5px !important;
+  box-shadow: 0 0 3px 1px rgba(0, 0, 0, 0.32);
+}
+
+footer {
+  padding-top: 20px;
+}
