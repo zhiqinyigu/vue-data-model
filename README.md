@@ -16,7 +16,7 @@
 由 `types.xxx()` 方法创建的对象，它具备自我描述的特性，类似于 _面向对象(oop)_ 的 _类_。
 
 **state(状态)**
-一般通过 _type(类型)_ 的 `create()` 方法创建的类型实体对象。
+一般通过 _type(类型)_ 的 `create()` 方法创建的类型实例对象。
 
 ## How to use
 
@@ -45,7 +45,7 @@ const Todo = types.vue({
 });
 ```
 
-**step 2:** 通过类型的 `type.create()` 创建类型实体。
+**step 2:** 通过类型的 `type.create()` 创建类型实例。
 
 ```JavaScript
 /* 不传参数创建 */
@@ -202,7 +202,7 @@ const todoList = TodoList.create({
   list: [{name: 'get up'}]
 });
 
-console.log(todoList.toJSON());
+console.log(todoList.$toValue());
 /*
 {
   list: [{name: "get up"}]
@@ -223,7 +223,7 @@ console.log('remove' in todoList.list[0]) // true
 // 让我们基于 step 1 的Todo。
 const todo = Todo.create({name: 'aa'});
 
-console.log(todo.toJSON());
+console.log(todo.$toValue());
 // {name: 'aa', isDone: false}
 
 ```

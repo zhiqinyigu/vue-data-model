@@ -26,6 +26,6 @@ describe('类型系统支持', () => {
     expect(() => VM.create({})).toThrow();
     expect(() => VM.create({ num: 2 })).toThrow();
 
-    expect(VM.create({ num: 1 }).toJSON()).toMatchObject({ num: 1 });
+    expect(VM.create({ num: 1 }).$toValue()).toMatchObject({ num: 1 });
   });
 });

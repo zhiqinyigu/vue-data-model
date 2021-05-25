@@ -6,7 +6,7 @@ import { bindParent, toJSON } from '../utils';
 const defaultReplacer = (_, value) => value;
 const baseMixns = {
   methods: {
-    toJSON(replacer) {
+    $toValue(replacer) {
       return toJSON(this, replacer);
     },
     $assign(data, replacer = defaultReplacer) {
@@ -17,8 +17,8 @@ const baseMixns = {
           }
         }
       }
-    }
-  }
+    },
+  },
 };
 
 function createStateModel(config) {
@@ -29,7 +29,7 @@ function createStateModel(config) {
   }
 
   Object.assign(StateModel.prototype, config, {
-    mixins: [baseMixns, ...(config.mixins || [])]
+    mixins: [baseMixns, ...(config.mixins || [])],
   });
 
   return StateModel;
@@ -59,8 +59,8 @@ export default class ModelWrapper extends Type {
           } catch (e) {
             createError = e;
           }
-        }
-      }
+        },
+      },
     ].concat(optionsInstance.mixins);
 
     const vm = new Vue(optionsInstance);
@@ -73,8 +73,17 @@ export default class ModelWrapper extends Type {
   }
 
   is(vm) {
-    return vm.__model__ === this._model_;
+    if (vm.__model__) {
+      return vm.__model__ === this._model_;
+    } else {
+      try {
+        this.create(vm);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
   }
 }
 
-export { baseMixns };
+export { baseMixns, createStateModel };

@@ -94,7 +94,7 @@ describe('其它', () => {
       cardList: [{}, { id: 1 }, { id: 2, filter: true }]
     });
 
-    expect(vm.toJSON()).toMatchObject({
+    expect(vm.$toValue()).toMatchObject({
       cardList: [{ id: 0, filter: false }, { id: 1, filter: false }, { id: 2, filter: true }]
     });
   });

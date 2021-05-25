@@ -20,13 +20,13 @@ describe('类型系统支持', () => {
   });
 
   it('可以不传参数进行初始化', () => {
-    expect(vm.toJSON()).toMatchObject(defaultSnapshot);
+    expect(vm.$toValue()).toMatchObject(defaultSnapshot);
 
-    expect(vm.toJSON()).toMatchObject(
+    expect(vm.$toValue()).toMatchObject(
       Root.create({
         array: [],
         obj: {}
-      }).toJSON()
+      }).$toValue()
     );
   });
 

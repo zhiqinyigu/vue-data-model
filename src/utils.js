@@ -16,7 +16,7 @@ export function calculateMixinsData(config) {
 
 export function applyToJSON(vm) {
   if (vm instanceof Vue) {
-    return vm.toJSON ? vm.toJSON() : toJSON(vm);
+    return vm.$toValue ? vm.$toValue() : toJSON(vm);
   }
 
   return vm;

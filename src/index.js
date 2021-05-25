@@ -3,6 +3,7 @@ import ArrayType from './type/array';
 import Literal from './type/literal';
 import ModelWrapper, { baseMixns } from './type/vue';
 import Union from './type/union';
+import ValueObject from './type/vo';
 
 function getParent(target, depth) {
   let parent = target;
@@ -15,7 +16,9 @@ function getParent(target, depth) {
     parent = parent.__parent__;
   }
 
-  throw new Error(`Failed to find the parent of ${JSON.stringify(target.toJSON ? target.toJSON() : target)} at depth ${_depth}`);
+  throw new Error(
+    `Failed to find the parent of ${JSON.stringify(target.$toValue ? target.$toValue() : target)} at depth ${_depth}`
+  );
 }
 
 const types = {
@@ -26,6 +29,16 @@ const types = {
    */
   vue(config) {
     return new ModelWrapper(config);
+  },
+
+  /**
+   * 创建一个响应式状态，类似于vue。唯一区别vo不需要接受data定义，内部将初始值放在value字段下。
+   * @param {any}    Type   类型对象或其它字面量，表示默认值。
+   * @param {Object} config vue组件定义对象
+   * @returns Vue
+   */
+  vo(Type, config) {
+    return new ValueObject(Type, config);
   },
 
   /**
@@ -84,15 +97,15 @@ const types = {
   compose() {
     return new ModelWrapper(
       Object.assign({
-        mixins: toArray(arguments).map(wrapper => {
+        mixins: toArray(arguments).map((wrapper) => {
           return {
             ...wrapper._model_.prototype,
-            mixins: wrapper._model_.prototype.mixins.filter(item => item !== baseMixns)
+            mixins: wrapper._model_.prototype.mixins.filter((item) => item !== baseMixns),
           };
-        })
+        }),
       })
     );
-  }
+  },
 };
 
 export { types, getParent };
