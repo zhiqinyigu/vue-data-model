@@ -2,6 +2,11 @@
 
 一个类似[_mobx-state-tree_](https://github.com/mobxjs/mobx-state-tree)的响应式状态容器系统（reactive state container system ）。内部实现基于[_Vue_](https://github.com/vuejs/vue)，创建出来的对象是一个 vue 实例。这使得你在不熟悉 _mobx-state-tree_ 的情况下，也能轻松上手，并且很容易在你现有的 vue 项目中使用。
 
+## Install
+```Bash
+npm i @chenyican/vue-model
+```
+
 ## Example
 
 [codesandbox online](https://codesandbox.io/s/vue-model-todo-list-app-tkvof?file=/src/components/TodoList.vue)
@@ -77,6 +82,37 @@ console.log(Todo.create() instanceof Vue) // true
 
 - **types.vue(vueOptions)**
   基于一个 vue 组件定义创建一个类型。详看：如何使用。
+
+- **types.vo(vueOptions)**
+  基于一个 vue 组件定义创建一个类型，类似于`types.vue`，用于创建 _DDD_ 的 _Value Object_。唯一区别`types.vo`不需要接受 data 定义，内部将实际的值放在 value 字段下，并重载了`$toValue`方法。
+
+```JavaScript
+const Email = types.vo('', {
+  computed: {
+    length() {
+      return this.value.length;
+    },
+    isVaild() {
+      return /@gmail.com$/.test(this.value);
+    },
+  },
+});
+
+const VM = types.vue({
+  data() {
+    return {
+      email: Email,
+    };
+  },
+});
+
+const vm = VM.create({
+  email: 'cainiao@gmail.com'
+});
+
+console.log(vm.email.value); // 'cainiao@gmail.com'
+console.log(vm.email.isVaild); // true
+```
 
 - **types.literal(value)**
   定义一个字面量类型，与 `types.union` 配合时很有用。参考于 `mobx-state-tree`。
@@ -216,7 +252,7 @@ console.log('remove' in todoList.list[0]) // true
 
 ### state
 
-- **toJSON(replacer)**
+- **$toValue(replacer)**
   将 state 转成一个纯对象，只包含 data 域的内容。replacer 是 `JSON.stringify(data, replacer)` 的参数。
 
 ```JavaScript

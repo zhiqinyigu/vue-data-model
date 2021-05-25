@@ -23,7 +23,7 @@ function getParent(target, depth) {
 
 const types = {
   /**
-   * 创建一个响应式状态
+   * 基于一个 vue 组件定义创建一个类型。
    * @param {Object} config vue组件定义对象
    * @returns Vue
    */
@@ -32,7 +32,7 @@ const types = {
   },
 
   /**
-   * 创建一个响应式状态，类似于vue。唯一区别vo不需要接受data定义，内部将初始值放在value字段下。
+   * 基于一个 vue 组件定义创建一个类型，类似于`types.vue`，用于创建 _DDD_ 的 _Value Object_。唯一区别`types.vo`不需要接受 data 定义，内部将实际的值放在 value 字段下，并重载了`$toValue`方法。
    * @param {any}    Type   类型对象或其它字面量，表示默认值。
    * @param {Object} config vue组件定义对象
    * @returns Vue
