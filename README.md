@@ -3,6 +3,7 @@
 一个类似[_mobx-state-tree_](https://github.com/mobxjs/mobx-state-tree)的响应式状态容器系统（reactive state container system ）。内部实现基于[_Vue_](https://github.com/vuejs/vue)，创建出来的对象是一个 vue 实例。这使得你在不熟悉 _mobx-state-tree_ 的情况下，也能轻松上手，并且很容易在你现有的 vue 项目中使用。
 
 ## Install
+
 ```Bash
 npm i @chenyican/vue-model
 ```
@@ -205,6 +206,9 @@ console.log(SuperMan.is(hero)); // true
 console.log(Man.is(hero)); // false. compose is not Class inheritance.
 
 ```
+
+- **types.composeVo(types...)**
+  组合多个类型成为一个新的 ValueObject 类型。跟 types.compose 的区别是，`types.compose`使用`types.vue`创建新类型，而`types.composeVo`使用`types.vo`。
 
 - **types.array(type)**
   定义数组类型。参考于 `mobx-state-tree`。

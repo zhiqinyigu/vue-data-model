@@ -22,11 +22,7 @@ const baseMixns = {
 };
 
 function createStateModel(config) {
-  class StateModel extends Model {
-    constructor(data) {
-      super(data);
-    }
-  }
+  class StateModel extends Model {}
 
   Object.assign(StateModel.prototype, config, {
     mixins: [baseMixns, ...(config.mixins || [])],

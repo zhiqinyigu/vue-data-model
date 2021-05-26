@@ -1,9 +1,9 @@
-import { toArray } from './utils';
 import ArrayType from './type/array';
 import Literal from './type/literal';
-import ModelWrapper, { baseMixns } from './type/vue';
+import ModelWrapper from './type/vue';
 import Union from './type/union';
 import ValueObject from './type/vo';
+import { getComposeRawMaterial } from './type/compose';
 
 function getParent(target, depth) {
   let parent = target;
@@ -95,16 +95,10 @@ const types = {
   },
 
   compose() {
-    return new ModelWrapper(
-      Object.assign({
-        mixins: toArray(arguments).map((wrapper) => {
-          return {
-            ...wrapper._model_.prototype,
-            mixins: wrapper._model_.prototype.mixins.filter((item) => item !== baseMixns),
-          };
-        }),
-      })
-    );
+    return types.vue(getComposeRawMaterial(...arguments));
+  },
+  composeVo() {
+    return types.vo(undefined, getComposeRawMaterial(...arguments));
   },
 };
 

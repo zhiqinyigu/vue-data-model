@@ -89,13 +89,17 @@ describe('常用的变异方法能导致更新', () => {
 });
 
 describe('其它', () => {
-  it('toJSON输出', () => {
+  it('$toValue输出', () => {
     const vm = VM.create({
-      cardList: [{}, { id: 1 }, { id: 2, filter: true }]
+      cardList: [{}, { id: 1 }, { id: 2, filter: true }],
     });
 
     expect(vm.$toValue()).toMatchObject({
-      cardList: [{ id: 0, filter: false }, { id: 1, filter: false }, { id: 2, filter: true }]
+      cardList: [
+        { id: 0, filter: false },
+        { id: 1, filter: false },
+        { id: 2, filter: true },
+      ],
     });
   });
 });
