@@ -10,7 +10,8 @@
   "scripts": {
     "lint": "eslint \"src/**/*.js\"",
     "test": "cross-env BABEL_ENV=jest jest",
-    "prepush": "npm run lint && npm run test"
+    "prepush": "npm run lint && npm run test",
+    "push": "npm run prepush && npm publish --access public"
   },
   "keywords": [
     "vue",
