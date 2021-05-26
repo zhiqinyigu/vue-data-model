@@ -29,6 +29,7 @@ npm i vue-data-model
 **step 1:** 使用 `types.vue` 定义通用类型。该方法接受 vue 组件选项（vue component options）作为唯一参数。
 
 ```JavaScript
+import { types } from 'vue-data-model';
 const Todo = types.vue({
   data() {
     return {
@@ -298,6 +299,7 @@ console.log('boo' in todo); // false
 
 ```JavaScript
 // 让我们基于 types.array 的例子示范
+import { types, getParent } from 'vue-data-model';
 console.log(getParent(todoList.list[0], 1) === todoList.list); // true
 console.log(getParent(todoList.list[0], 2) === todoList); // true
 ```
