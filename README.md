@@ -84,8 +84,12 @@ console.log(Todo.create() instanceof Vue) // true
 - **types.vue(vueOptions)**
   基于一个 vue 组件定义创建一个类型。详看：如何使用。
 
-- **types.vo(vueOptions)**
+- **types.vo(typeOrLiteral, vueOptions)**
   基于一个 vue 组件定义创建一个类型，类似于`types.vue`，用于创建 _DDD_ 的 _Value Object_。唯一区别`types.vo`不需要接受 data 定义，内部将实际的值放在 value 字段下，并重载了`$toValue`方法。
+
+  **typeOrLiteral**: Value Object 的默认值或者类型。
+
+  **vueOptions**: vue 组件选项。
 
 ```JavaScript
 const Email = types.vo('', {
@@ -113,6 +117,7 @@ const vm = VM.create({
 
 console.log(vm.email.value); // 'cainiao@gmail.com'
 console.log(vm.email.isVaild); // true
+console.log(vm.$toValue()); // {email: 'cainiao@gmail.com'}
 ```
 
 - **types.literal(value)**
