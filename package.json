@@ -1,5 +1,5 @@
 {
-  "name": "@chenyican/vue-model",
+  "name": "vue-data-model",
   "version": "1.1.1",
   "description": "A reactive state container system based on Vue, inspired by mobx-state-tree",
   "main": "src/index.js",
@@ -15,6 +15,7 @@
   },
   "keywords": [
     "vue",
+    "vue-data-model",
     "mobx-state-tree"
   ],
   "author": "cyc",
@@ -48,10 +49,10 @@
   "dependencies": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhiqinyigu/vue-model.git"
+    "url": "git+https://github.com/zhiqinyigu/vue-data-model.git"
   },
   "bugs": {
-    "url": "https://github.com/zhiqinyigu/vue-model/issues"
+    "url": "https://github.com/zhiqinyigu/vue-data-model/issues"
   },
-  "homepage": "https://github.com/zhiqinyigu/vue-model#readme"
+  "homepage": "https://github.com/zhiqinyigu/vue-data-model#readme"
 }

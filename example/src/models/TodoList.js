@@ -1,4 +1,4 @@
-import { types } from '@chenyican/vue-model';
+import { types } from 'vue-data-model';
 import Todo from './Todo';
 
 const TodoList = types.vue({

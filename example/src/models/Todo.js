@@ -1,4 +1,4 @@
-import { getParent, types } from "@chenyican/vue-model";
+import { getParent, types } from 'vue-data-model';
 
 const Todo = types.vue({
   data() {

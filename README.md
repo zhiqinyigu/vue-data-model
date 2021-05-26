@@ -5,14 +5,14 @@
 ## Install
 
 ```Bash
-npm i @chenyican/vue-model
+npm i vue-data-model
 ```
 
 ## Example
 
-[codesandbox online](https://codesandbox.io/s/vue-model-todo-list-app-tkvof?file=/src/components/TodoList.vue)
+[codesandbox online](https://codesandbox.io/s/vue-data-model-todo-list-app-tkvof)
 
-[directory](https://github.com/zhiqinyigu/vue-model/tree/master/example)
+[directory](https://github.com/zhiqinyigu/vue-data-model/tree/master/example)
 
 ## Terminology
 
