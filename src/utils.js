@@ -33,7 +33,22 @@ export function pickData(vm) {
   return res;
 }
 
-export function bindParent(model, context) {
-  model.__parent__ = context;
-  return model;
+export function getTreeNode(node) {
+  return node.$treenode;
+}
+
+export function getParent(target, depth) {
+  let parent = getTreeNode(target);
+
+  depth = depth || 1;
+  const _depth = depth;
+
+  while (parent) {
+    if (depth-- === 0) return parent.storedValue;
+    parent = parent.parent;
+  }
+
+  throw new Error(
+    `Failed to find the parent of ${JSON.stringify(target.$toValue ? target.$toValue() : target)} at depth ${_depth}`
+  );
 }

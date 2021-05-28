@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import Type from '.';
+import { ComplexType } from './base';
 import Model from '../model';
-import { bindParent, toJSON } from '../utils';
+import { toJSON } from '../utils';
 
 const defaultReplacer = (_, value) => value;
 const baseMixns = {
@@ -31,13 +31,13 @@ function createStateModel(config) {
   return StateModel;
 }
 
-export default class ModelWrapper extends Type {
+export default class ModelWrapper extends ComplexType {
   constructor(config) {
     super();
     this._model_ = createStateModel(config);
   }
 
-  create(initialValue, parent) {
+  createNewInstance(initialValue, bindNode) {
     const self = this;
     const optionsInstance = new self._model_();
     let createError;
@@ -47,8 +47,9 @@ export default class ModelWrapper extends Type {
         beforeCreate() {
           this.__model__ = self._model_;
           optionsInstance.$vm = this;
-          bindParent(this, parent);
           optionsInstance._dormancy = false;
+
+          bindNode && bindNode(this);
 
           try {
             optionsInstance._calculateInitializeData(initialValue || {});

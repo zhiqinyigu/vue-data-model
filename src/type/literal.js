@@ -1,12 +1,12 @@
-import Type from '.';
+import { SimpleType } from './base';
 
-export default class Literal extends Type {
+export default class Literal extends SimpleType {
   constructor(val) {
     super();
     this.literal = val;
   }
 
-  create(val) {
+  createNewInstance(val) {
     const match = this.is(val);
 
     if (match) {

@@ -1,7 +1,7 @@
-import Type from '.';
+import { BaseType, ComplexType } from './base';
 import ModelWrapper, { createStateModel } from './vue';
 
-export default class ValueObject extends Type {
+export default class ValueObject extends ComplexType {
   constructor(type, config) {
     super();
 
@@ -29,7 +29,7 @@ export default class ValueObject extends Type {
       },
     });
 
-    const isSchema = type instanceof Type;
+    const isSchema = type instanceof BaseType;
     const typeofForType = typeof type;
     const _calculateInitializeData = this._model_.prototype._calculateInitializeData;
 
@@ -46,8 +46,8 @@ export default class ValueObject extends Type {
     };
   }
 
-  create() {
-    return ModelWrapper.prototype.create.apply(this, arguments);
+  createNewInstance() {
+    return ModelWrapper.prototype.createNewInstance.apply(this, arguments);
   }
 
   is(vm) {

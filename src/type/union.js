@@ -1,12 +1,12 @@
-import Type from '.';
+import { ComplexType } from './base';
 
-export default class Union extends Type {
+export default class Union extends ComplexType {
   constructor(list) {
     super();
     this.list = list;
   }
 
-  create(res) {
+  createNewInstance(res) {
     const { list } = this;
 
     for (let index = 0; index < list.length; index++) {

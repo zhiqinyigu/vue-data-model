@@ -1,6 +1,6 @@
 import proxy, { transmit } from './proxy';
-import Type from './type';
-import { calculateMixinsData } from './utils';
+import { BaseType } from './type';
+import { calculateMixinsData, getTreeNode } from './utils';
 
 export default class Model {
   constructor() {
@@ -9,12 +9,17 @@ export default class Model {
     self._dormancy = true;
     self.data = {};
 
-    self._each(function(key, dataTypes, defaultValue, isSchema) {
+    self._each(function (key, dataTypes, defaultValue, isSchema) {
       proxy(
         self.data,
         dataTypes,
         key,
-        isSchema ? val => (self._dormancy ? undefined : defaultValue.create(val, self.$vm)) : transmit
+        isSchema
+          ? (val) =>
+              self._dormancy
+                ? undefined
+                : defaultValue.instantiate(getTreeNode(self.$vm), `${getTreeNode(self.$vm).subpath}/${key}`, val).value
+          : transmit
       );
 
       self.data[key] = undefined;
@@ -25,8 +30,8 @@ export default class Model {
     const dataTypes = calculateMixinsData(this.constructor.prototype);
 
     for (var key in dataTypes) {
-      (function(defaultValue) {
-        const isSchema = defaultValue instanceof Type;
+      (function (defaultValue) {
+        const isSchema = defaultValue instanceof BaseType;
         fn(key, dataTypes, defaultValue, isSchema);
       }.call(this, dataTypes[key]));
     }
@@ -38,7 +43,7 @@ export default class Model {
     data = data || {};
 
     // @todo 类型检查
-    self._each(function(key, _dataTypes, defaultValue, isSchema) {
+    self._each(function (key, _dataTypes, defaultValue, isSchema) {
       res[key] = self.data[key] = key in data ? data[key] : isSchema ? {} : defaultValue;
     });
 
