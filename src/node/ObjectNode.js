@@ -1,18 +1,19 @@
 import { BaseNode } from './BaseNode';
 
 export class ObjectNode extends BaseNode {
-  constructor(type, parent, subpath, initialValue, environment) {
-    super(type, parent, subpath, environment);
+  constructor(complexType, parent, subpath, initialValue, environment) {
+    super(complexType, parent, subpath, environment);
 
     const self = this;
 
     this._initialSnapshot = initialValue;
 
-    const bindNode = function bindNode(node) {
-      self.storedValue = node;
-      node.$treenode = self;
+    const bindNode = function bindNode(value) {
+      self.storedValue = value;
+      value.$treenode = self;
     };
 
-    bindNode(this.type.createNewInstance(this._initialSnapshot, bindNode));
+    bindNode(complexType.createNewInstance(this._initialSnapshot, bindNode));
+    // this._childNodes = complexType.initializeChildNodes(this, this._initialSnapshot);
   }
 }

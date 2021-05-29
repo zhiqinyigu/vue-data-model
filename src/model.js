@@ -37,14 +37,18 @@ export default class Model {
     }
   }
 
-  _calculateInitializeData(data) {
+  _calculateInitializeData(data, syncSet) {
     const self = this;
     const res = {};
     data = data || {};
 
     // @todo 类型检查
     self._each(function (key, _dataTypes, defaultValue, isSchema) {
-      res[key] = self.data[key] = key in data ? data[key] : isSchema ? {} : defaultValue;
+      res[key] = key in data ? data[key] : isSchema ? {} : defaultValue;
+
+      if (syncSet) {
+        self.data[key] = res[key];
+      }
     });
 
     return res;

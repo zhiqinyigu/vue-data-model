@@ -13,14 +13,14 @@ export default class ArrayType extends ComplexType {
   }
 
   createNewInstance(array, bindNode) {
-    bindNode && bindNode(this);
-
-    const self = this;
     const Type = this._subType;
     const res = VariationArray.clone(array, {
+      created() {
+        bindNode && bindNode(this);
+      },
       _overwriteParams(item, index) {
         const subpath = '' + index;
-        return Type.instantiate(getTreeNode(self), subpath, item).value;
+        return Type.instantiate(getTreeNode(this), subpath, item).value;
       },
     });
 

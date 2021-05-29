@@ -33,16 +33,20 @@ export default class ValueObject extends ComplexType {
     const typeofForType = typeof type;
     const _calculateInitializeData = this._model_.prototype._calculateInitializeData;
 
-    this._model_.prototype._calculateInitializeData = function (value) {
-      return _calculateInitializeData.call(this, {
-        value: isSchema
-          ? type.is(value)
+    this._model_.prototype._calculateInitializeData = function (value, ...other) {
+      return _calculateInitializeData.call(
+        this,
+        {
+          value: isSchema
+            ? type.is(value)
+              ? value
+              : type.create(value, this)
+            : typeof value === typeof type || typeofForType === 'undefined' || type === null
             ? value
-            : type.create(value, this)
-          : typeof value === typeof type || typeofForType === 'undefined' || type === null
-          ? value
-          : type,
-      });
+            : type,
+        },
+        ...other
+      );
     };
   }
 

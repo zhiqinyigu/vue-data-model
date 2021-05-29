@@ -32,6 +32,7 @@ VariationArray.clone = function(arr, template) {
 
   if (template) {
     list._overwriteParams = template._overwriteParams;
+    template.created && template.created.call(list);
   }
 
   list.push(...Array.prototype.slice.call(arr));

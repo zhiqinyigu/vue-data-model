@@ -1,10 +1,12 @@
 import { createObjectNode, createScalarNode } from '../node/create-node';
 
+const abstractBaseMethods = ['is', 'instantiate', 'createNewInstance'];
+
 class BaseType {
   constructor() {
-    ['is', 'instantiate', 'createNewInstance'].forEach((key) => {
+    abstractBaseMethods.forEach((key) => {
       if (typeof this[key] !== 'function') {
-        throw new Error(`Type must define "${key}" methods`);
+        throw new Error(`BaseType must realize "${key}" methods`);
       }
     });
   }

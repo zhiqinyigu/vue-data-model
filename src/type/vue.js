@@ -45,14 +45,13 @@ export default class ModelWrapper extends ComplexType {
     optionsInstance.mixins = [
       {
         beforeCreate() {
-          this.__model__ = self._model_;
           optionsInstance.$vm = this;
-          optionsInstance._dormancy = false;
-
+          this.__model__ = self._model_;
           bindNode && bindNode(this);
 
           try {
-            optionsInstance._calculateInitializeData(initialValue || {});
+            optionsInstance._dormancy = false;
+            optionsInstance._calculateInitializeData(initialValue || {}, true);
           } catch (e) {
             createError = e;
           }
