@@ -1,9 +1,10 @@
+import { getComposeRawMaterial } from './compose';
 import ArrayType from './array';
 import Literal from './literal';
 import ModelWrapper from './vue';
 import Union from './union';
 import ValueObject from './vo';
-import { getComposeRawMaterial } from './compose';
+import Identifier from './identifier';
 
 export * from './base';
 export * from './array';
@@ -92,4 +93,7 @@ export const types = {
   composeVo() {
     return types.vo(undefined, getComposeRawMaterial(...arguments));
   },
+
+  identifier: new Identifier('string'),
+  identifierNumber: new Identifier('number'),
 };
