@@ -1,12 +1,15 @@
+import { fail, toJSON } from '../utils';
 import { createObjectNode, createScalarNode } from '../node/create-node';
 
 const abstractBaseMethods = ['is', 'instantiate', 'createNewInstance'];
 
 class BaseType {
+  identifierAttribute;
+
   constructor() {
     abstractBaseMethods.forEach((key) => {
       if (typeof this[key] !== 'function') {
-        throw new Error(`BaseType must realize "${key}" methods`);
+        throw fail(`BaseType must realize "${key}" methods`);
       }
     });
   }
@@ -14,11 +17,23 @@ class BaseType {
   create(snapshot, environment) {
     return this.instantiate(null, '', snapshot, environment).value;
   }
+
+  isAssignableFrom(type) {
+    return type === this;
+  }
 }
+
+// const abstractComplexMethods = ['_getChilds'];
 
 class ComplexType extends BaseType {
   constructor() {
     super();
+
+    // abstractComplexMethods.forEach((key) => {
+    //   if (typeof this[key] !== 'function') {
+    //     throw fail(`ComplexType must realize "${key}" methods`);
+    //   }
+    // });
   }
 
   create(snapshot = this.getDefaultSnapshot(), environment) {
@@ -33,6 +48,10 @@ class ComplexType extends BaseType {
 
   getValue(node) {
     return node.storedValue;
+  }
+
+  getSnapshot(node) {
+    return toJSON(node.storedValue);
   }
 }
 

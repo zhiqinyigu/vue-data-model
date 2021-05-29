@@ -6,6 +6,10 @@ export function toArray(arr) {
   return slice.call(arr);
 }
 
+export function normalizeIdentifier(str) {
+  return '' + str;
+}
+
 export function toJSON(vm, replacer) {
   return JSON.parse(JSON.stringify(pickData(vm), replacer));
 }
@@ -33,8 +37,20 @@ export function pickData(vm) {
   return res;
 }
 
+export function fail(message = 'Illegal state') {
+  return new Error('[vue-data-model] ' + message);
+}
+
+export function isTreeNodeValue(node) {
+  return node && node.$treenode;
+}
+
 export function getTreeNode(node) {
   return node.$treenode;
+}
+
+export function getIdentifier(target) {
+  return getTreeNode(target).identifier;
 }
 
 export function getParent(target, depth) {
@@ -48,7 +64,7 @@ export function getParent(target, depth) {
     parent = parent.parent;
   }
 
-  throw new Error(
+  throw fail(
     `Failed to find the parent of ${JSON.stringify(target.$toValue ? target.$toValue() : target)} at depth ${_depth}`
   );
 }

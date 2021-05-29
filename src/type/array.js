@@ -1,4 +1,4 @@
-import { getTreeNode } from '../utils';
+import { fail, getTreeNode } from '../utils';
 import { ComplexType } from './base';
 import VariationArray from '../VariationArray';
 
@@ -6,7 +6,7 @@ export default class ArrayType extends ComplexType {
   constructor(Type) {
     super();
     if (!Type) {
-      throw new Error(`expected type as argument 1, got ${Type} instead`);
+      throw fail(`expected type as argument 1, got ${Type} instead`);
     }
 
     this._subType = Type;
@@ -19,8 +19,7 @@ export default class ArrayType extends ComplexType {
         bindNode && bindNode(this);
       },
       _overwriteParams(item, index) {
-        const subpath = '' + index;
-        return Type.instantiate(getTreeNode(this), subpath, item).value;
+        return Type.instantiate(getTreeNode(this), `${getTreeNode(this).subpath}/${index}`, item).value;
       },
     });
 

@@ -1,3 +1,4 @@
+import { fail } from '../utils';
 import { SimpleType } from './base';
 
 export default class Literal extends SimpleType {
@@ -13,7 +14,7 @@ export default class Literal extends SimpleType {
       return this.literal;
     }
 
-    throw new Error(`value \`${val}\` is not assignable to type: \`${this.literal}\``);
+    throw fail(`value \`${val}\` is not assignable to type: \`${this.literal}\``);
   }
 
   is(val) {

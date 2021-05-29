@@ -5,6 +5,7 @@ import ModelWrapper from './vue';
 import Union from './union';
 import ValueObject from './vo';
 import Identifier from './identifier';
+import { IdentifierReferenceType } from './reference';
 
 export * from './base';
 export * from './array';
@@ -96,4 +97,8 @@ export const types = {
 
   identifier: new Identifier('string'),
   identifierNumber: new Identifier('number'),
+
+  reference(subType) {
+    return new IdentifierReferenceType(subType);
+  },
 };

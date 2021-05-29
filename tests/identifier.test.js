@@ -1,4 +1,4 @@
-import { types } from '../../src';
+import { getTreeNode, types } from '../src';
 
 const Foo = types.vue({
   data() {
@@ -33,6 +33,12 @@ it('基本支持', () => {
   expect(foo.$toValue()).toMatchObject(dataRepository.stringFactory());
 });
 
+it('正确保存了identifierAttribute', () => {
+  const foo = Foo.create(dataRepository.stringFactory());
+
+  expect(getTreeNode(foo).identifierAttribute).toBe('id');
+});
+
 it('identifier类型不匹配不能创建', () => {
   const NumberFoo = types.vue({
     data() {
@@ -48,26 +54,4 @@ it('identifier类型不匹配不能创建', () => {
 
   expect(() => NumberFoo.create(dataRepository.numberFactory())).not.toThrow();
   expect(() => NumberFoo.create(dataRepository.noIdFactory())).toThrow();
-});
-
-it('同一个store的同一个实体，identifier必须保持唯一', () => {
-  const Store = types.vue({
-    data() {
-      return {
-        foos: types.array(Foo),
-      };
-    },
-  });
-
-  expect(() =>
-    Store.create({
-      foos: [dataRepository.stringFactory('17'), dataRepository.stringFactory('18')],
-    })
-  ).not.toThrow();
-
-  // expect(() =>
-  //   Store.create({
-  //     foos: [dataRepository.stringFactory('17'), dataRepository.stringFactory('17')],
-  //   })
-  // ).toThrow();
 });

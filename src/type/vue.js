@@ -2,6 +2,7 @@ import Vue from 'vue';
 import { ComplexType } from './base';
 import Model from '../model';
 import { toJSON } from '../utils';
+import Identifier from './identifier';
 
 const defaultReplacer = (_, value) => value;
 const baseMixns = {
@@ -48,6 +49,13 @@ export default class ModelWrapper extends ComplexType {
           optionsInstance.$vm = this;
           this.__model__ = self._model_;
           bindNode && bindNode(this);
+
+          optionsInstance._each(function (key, _dataTypes, defaultValue) {
+            if (defaultValue instanceof Identifier) {
+              self.identifierAttribute = key;
+              return false;
+            }
+          });
 
           try {
             optionsInstance._dormancy = false;

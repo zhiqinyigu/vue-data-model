@@ -1,4 +1,9 @@
+import { fail } from '../utils';
 import { SimpleType } from './base';
+
+export function isValidIdentifier(id) {
+  return typeof id === 'string' || typeof id === 'number';
+}
 
 export default class Identifier extends SimpleType {
   constructor(type) {
@@ -13,7 +18,7 @@ export default class Identifier extends SimpleType {
       return val;
     }
 
-    throw new Error(`value \`${val}\` is not assignable to type: \`${this.validType}\``);
+    throw fail(`value \`${val}\` is not assignable to type: \`${this.validType}\``);
   }
 
   is(val) {

@@ -30,10 +30,12 @@ export default class Model {
     const dataTypes = calculateMixinsData(this.constructor.prototype);
 
     for (var key in dataTypes) {
-      (function (defaultValue) {
+      const result = function (defaultValue) {
         const isSchema = defaultValue instanceof BaseType;
-        fn(key, dataTypes, defaultValue, isSchema);
-      }.call(this, dataTypes[key]));
+        return fn(key, dataTypes, defaultValue, isSchema);
+      }.call(this, dataTypes[key]);
+
+      if (result === false) break;
     }
   }
 

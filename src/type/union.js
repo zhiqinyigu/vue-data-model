@@ -1,29 +1,34 @@
+import { fail } from '../utils';
 import { ComplexType } from './base';
 
 export default class Union extends ComplexType {
-  constructor(list) {
+  constructor(_types) {
     super();
-    this.list = list;
+    this._types = _types;
+  }
+
+  isAssignableFrom(type) {
+    return this._types.some((subType) => subType.isAssignableFrom(type));
   }
 
   createNewInstance(res) {
-    const { list } = this;
+    const { _types } = this;
 
-    for (let index = 0; index < list.length; index++) {
+    for (let index = 0; index < _types.length; index++) {
       try {
-        return list[index].create(res);
+        return _types[index].create(res);
         // eslint-disable-next-line no-empty
       } catch (e) {}
     }
 
-    throw new Error(`Union could not determine the type`);
+    throw fail(`Union could not determine the type`);
   }
 
   is(val) {
-    const { list } = this;
+    const { _types } = this;
 
-    for (let index = 0; index < list.length; index++) {
-      if (list[index].is(val)) {
+    for (let index = 0; index < _types.length; index++) {
+      if (_types[index].is(val)) {
         return true;
       }
     }

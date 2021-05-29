@@ -1,3 +1,4 @@
+import { fail } from '../utils';
 import { BaseType, ComplexType } from './base';
 import ModelWrapper, { createStateModel } from './vue';
 
@@ -6,7 +7,7 @@ export default class ValueObject extends ComplexType {
     super();
 
     if (typeof config === 'undefined') {
-      throw new Error(
+      throw fail(
         `expected type or literal as argument 1, vue component options as argument 2, but only one was received.`
       );
     }
