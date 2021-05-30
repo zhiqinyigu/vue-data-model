@@ -26,7 +26,7 @@ export const types = {
   },
 
   /**
-   * 基于一个 vue 组件定义创建一个类型，类似于`types.vue`，用于创建 _DDD_ 的 _Value Object_。唯一区别`types.vo`不需要接受 data 定义，内部将实际的值放在 value 字段下，并重载了`$toValue`方法。
+   * 基于一个 vue 组件定义创建一个类型，类似于`types.vue`，用于创建 _DDD_ 的 _Value Object_。唯一区别`types.vo`不需要接受 data 定义，内部将实际的值放在 value 字段下。
    * @param {any}    Type   类型对象或其它字面量，表示默认值。
    * @param {Object} config vue组件定义对象
    * @returns Vue

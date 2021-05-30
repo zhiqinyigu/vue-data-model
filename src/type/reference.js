@@ -1,8 +1,9 @@
-import { fail, getIdentifier, getTreeNode, isTreeNodeValue, normalizeIdentifier } from '../utils';
+import Vue from 'vue';
+import { fail, normalizeIdentifier } from '../utils';
+import { getIdentifier, getTreeNode, isTreeNodeValue } from '../node/node-utils';
 import { createScalarNode } from '../node/create-node';
 import { isValidIdentifier } from './identifier';
 import { SimpleType } from './base';
-import Vue from 'vue';
 
 class StoredReference {
   identifier;
@@ -100,7 +101,8 @@ export class IdentifierReferenceType extends SimpleType {
   instantiate(parent, subpath, initialValue, environment) {
     const identifier = isTreeNodeValue(initialValue) ? getIdentifier(initialValue) : initialValue;
     const storedRef = createRef(initialValue, this.targetType, (val) => {
-      parent.storedValue['foo'] = val;
+      const key = subpath.match(/([^/]+)$/)[0];
+      parent.storedValue[key] = val;
     });
     const storedRefNode = createScalarNode(this, parent, subpath, storedRef, environment);
     storedRef.node = storedRefNode;

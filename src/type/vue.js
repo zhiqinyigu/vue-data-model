@@ -1,15 +1,12 @@
 import Vue from 'vue';
+import { toJsonForVue } from './vue-utils';
 import { ComplexType } from './base';
 import Model from '../model';
-import { toJSON } from '../utils';
 import Identifier from './identifier';
 
 const defaultReplacer = (_, value) => value;
 const baseMixns = {
   methods: {
-    $toValue(replacer) {
-      return toJSON(this, replacer);
-    },
     $assign(data, replacer = defaultReplacer) {
       if (data && typeof data === 'object') {
         for (var key in data) {
@@ -74,6 +71,10 @@ export default class ModelWrapper extends ComplexType {
     }
 
     return vm;
+  }
+
+  getSnapshot(node) {
+    return toJsonForVue(node.storedValue);
   }
 
   is(vm) {

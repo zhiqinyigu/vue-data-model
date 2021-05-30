@@ -1,6 +1,7 @@
 import { fail } from '../utils';
 import { BaseType, ComplexType } from './base';
 import ModelWrapper, { createStateModel } from './vue';
+import { toJsonForMaybeVue } from './vue-utils';
 
 export default class ValueObject extends ComplexType {
   constructor(type, config) {
@@ -21,14 +22,6 @@ export default class ValueObject extends ComplexType {
         },
       })
     );
-
-    this._model_.prototype.mixins.push({
-      methods: {
-        $toValue() {
-          return isSchema ? this.value.$toValue() : this.value;
-        },
-      },
-    });
 
     const isSchema = type instanceof BaseType;
     const typeofForType = typeof type;
@@ -53,6 +46,10 @@ export default class ValueObject extends ComplexType {
 
   createNewInstance() {
     return ModelWrapper.prototype.createNewInstance.apply(this, arguments);
+  }
+
+  getSnapshot(node) {
+    return toJsonForMaybeVue(node.storedValue.value);
   }
 
   is(vm) {

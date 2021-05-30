@@ -24,6 +24,10 @@ export default class Union extends ComplexType {
     throw fail(`Union could not determine the type`);
   }
 
+  getSnapshot(node) {
+    return node.type.getSnapshot(node);
+  }
+
   is(val) {
     const { _types } = this;
 

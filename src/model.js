@@ -1,6 +1,7 @@
 import proxy, { transmit } from './proxy';
 import { BaseType } from './type';
-import { calculateMixinsData, getTreeNode } from './utils';
+import { getTreeNode } from './node/node-utils';
+import { calculateMixinsData } from './type/vue-utils';
 
 export default class Model {
   constructor() {
@@ -8,6 +9,7 @@ export default class Model {
 
     self._dormancy = true;
     self.data = {};
+    self._each = self._each.bind(self);
 
     self._each(function (key, dataTypes, defaultValue, isSchema) {
       proxy(
@@ -15,10 +17,15 @@ export default class Model {
         dataTypes,
         key,
         isSchema
-          ? (val) =>
-              self._dormancy
-                ? undefined
-                : defaultValue.instantiate(getTreeNode(self.$vm), `${getTreeNode(self.$vm).subpath}/${key}`, val).value
+          ? (val) => {
+              if (self._dormancy) return;
+
+              const node = getTreeNode(self.$vm);
+              const childNode = defaultValue.instantiate(node, `${node.subpath}/${key}`, val);
+              node.replaceChildNode(key, childNode);
+
+              return childNode.value;
+            }
           : transmit
       );
 
@@ -27,7 +34,7 @@ export default class Model {
   }
 
   _each(fn) {
-    const dataTypes = calculateMixinsData(this.constructor.prototype);
+    const dataTypes = this._dataTypes || calculateMixinsData(this.constructor.prototype);
 
     for (var key in dataTypes) {
       const result = function (defaultValue) {

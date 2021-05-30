@@ -1,4 +1,4 @@
-import { fail, toJSON } from '../utils';
+import { fail } from '../utils';
 import { createObjectNode, createScalarNode } from '../node/create-node';
 
 const abstractBaseMethods = ['is', 'instantiate', 'createNewInstance'];
@@ -51,7 +51,7 @@ class ComplexType extends BaseType {
   }
 
   getSnapshot(node) {
-    return toJSON(node.storedValue);
+    return JSON.parse(JSON.stringify(node.storedValue));
   }
 }
 

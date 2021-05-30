@@ -8,4 +8,8 @@ export class ScalarNode extends BaseNode {
 
     this.storedValue = this.type.createNewInstance(this._initialSnapshot);
   }
+
+  get snapshot() {
+    return this.type.getSnapshot(this);
+  }
 }

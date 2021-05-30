@@ -1,4 +1,6 @@
+import Vue from 'vue';
 import { fail, normalizeIdentifier } from '../utils';
+import { toJSON } from './node-utils';
 import { BaseNode } from './BaseNode';
 import { IdentifierCache } from './identifier-cache';
 
@@ -8,7 +10,16 @@ export class ObjectNode extends BaseNode {
 
     const self = this;
 
+    this._childNodes = {};
     this._initialSnapshot = initialValue;
+
+    this.vm = new Vue({
+      computed: {
+        snapshot() {
+          return complexType.getSnapshot(self);
+        },
+      },
+    });
 
     if (!parent) {
       this.identifierCache = new IdentifierCache();
@@ -16,12 +27,17 @@ export class ObjectNode extends BaseNode {
 
     const bindNode = function bindNode(value) {
       self.storedValue = value;
-      value.$treenode = self;
+
+      if (!value.$treenode) {
+        value.$treenode = self;
+        value.$toValue = toJSON;
+      }
     };
 
     bindNode(complexType.createNewInstance(this._initialSnapshot, bindNode));
+
     this.identifierAttribute = complexType.identifierAttribute;
-    // this._childNodes = complexType._getChilds(this); // @todo
+    // this._childNodes = complexType._getChilds(this);
 
     this.identifier = null;
     this.unnormalizedIdentifier = null;
@@ -48,5 +64,13 @@ export class ObjectNode extends BaseNode {
     }
 
     this.root.identifierCache.addNodeToCache(this);
+  }
+
+  replaceChildNode(key, node) {
+    this._childNodes[key] = node;
+  }
+
+  get snapshot() {
+    return this.vm.snapshot;
   }
 }

@@ -1,4 +1,5 @@
-import { fail, getTreeNode } from '../utils';
+import { fail, getTreeNode } from '../node/node-utils';
+import { toJsonForMaybeVue } from './vue-utils';
 import { ComplexType } from './base';
 import VariationArray from '../VariationArray';
 
@@ -24,6 +25,10 @@ export default class ArrayType extends ComplexType {
     });
 
     return res;
+  }
+
+  getSnapshot(node) {
+    return node.storedValue.map(toJsonForMaybeVue);
   }
 
   is(val) {
