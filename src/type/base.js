@@ -44,7 +44,9 @@ class ComplexType extends BaseType {
     return createObjectNode(this, parent, subpath, initialValue, environment);
   }
 
-  getDefaultSnapshot() {}
+  getDefaultSnapshot() {
+    return {};
+  }
 
   getValue(node) {
     return node.storedValue;

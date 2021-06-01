@@ -32,6 +32,10 @@ export class IdentifierCache {
     if (node.identifierAttribute) {
       const identifier = node.identifier;
 
+      if (!identifier) {
+        return;
+      }
+
       if (!this.cache.has(identifier)) {
         this.cache.set(identifier, []);
       }
@@ -43,6 +47,21 @@ export class IdentifierCache {
 
       if (lastCacheUpdate) {
         this.updateLastCacheModificationPerId(identifier);
+      }
+    }
+  }
+
+  removeNodeToCache(node) {
+    if (node.identifierAttribute) {
+      const identifier = node.identifier;
+      const set = this.cache.get(identifier);
+
+      if (set) {
+        const index = set.indexOf(node);
+        if (index !== -1) {
+          set.splice(index, 1);
+          this.updateLastCacheModificationPerId(identifier);
+        }
       }
     }
   }

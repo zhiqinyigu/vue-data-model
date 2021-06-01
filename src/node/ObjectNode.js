@@ -3,6 +3,7 @@ import { fail, normalizeIdentifier } from '../utils';
 import { toJSON } from './node-utils';
 import { BaseNode } from './BaseNode';
 import { IdentifierCache } from './identifier-cache';
+import { ReferenceCache } from './reference-cache';
 
 export class ObjectNode extends BaseNode {
   constructor(complexType, parent, subpath, initialValue, environment) {
@@ -23,6 +24,7 @@ export class ObjectNode extends BaseNode {
 
     if (!parent) {
       this.identifierCache = new IdentifierCache();
+      this.referenceCache = new ReferenceCache();
     }
 
     const bindNode = function bindNode(value) {
@@ -64,10 +66,27 @@ export class ObjectNode extends BaseNode {
     }
 
     this.root.identifierCache.addNodeToCache(this);
+    this.root.referenceCache.updateRefs(this.identifier);
   }
 
   replaceChildNode(key, node) {
     this._childNodes[key] = node;
+  }
+
+  getChildNodes() {
+    return this._childNodes;
+  }
+
+  removeChildNode(key) {
+    delete this._childNodes[key];
+  }
+
+  _destroy() {
+    Object.keys(this._childNodes).forEach((key) => this._childNodes[key]._destroy());
+
+    this.root.identifierCache.removeNodeToCache(this);
+    this.root.referenceCache.updateRefs(this.identifier);
+    super._destroy();
   }
 
   get snapshot() {

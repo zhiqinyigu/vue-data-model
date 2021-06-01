@@ -1,7 +1,8 @@
+import { PROXY_SET_VALUE } from './constant';
 import proxy, { transmit } from './proxy';
 import { BaseType } from './type';
 import { getTreeNode } from './node/node-utils';
-import { calculateMixinsData } from './type/vue-utils';
+import { calculateMixinsData, isCarryProxyValue } from './type/vue-utils';
 
 export default class Model {
   constructor() {
@@ -12,6 +13,31 @@ export default class Model {
     self._each = self._each.bind(self);
 
     self._each(function (key, dataTypes, defaultValue, isSchema) {
+      // if (isComputed) {
+      //   const ref = new StoredReference('', defaultValue);
+
+      //   if (!self.computed) {
+      //     self.computed = {};
+      //     self.$proxy = new Vue({
+      //       data: {
+      //         value: {},
+      //       },
+      //     });
+      //   }
+
+      //   self.computed[key] = {
+      //     get() {
+      //       ref.identifier = self.$proxy.value[key];
+      //       ref.updateResolvedReference(getTreeNode(self.$vm));
+      //       return ref.resolvedReference.node.value;
+      //     },
+      //     set(val) {
+      //       Vue.set(self.$proxy.value, key, val);
+      //       self._createChildNode(defaultValue, key, ref);
+      //     },
+      //   };
+      // } else {
+      // }
       proxy(
         self.data,
         dataTypes,
@@ -20,11 +46,13 @@ export default class Model {
           ? (val) => {
               if (self._dormancy) return;
 
-              const node = getTreeNode(self.$vm);
-              const childNode = defaultValue.instantiate(node, `${node.subpath}/${key}`, val);
-              node.replaceChildNode(key, childNode);
+              if (isCarryProxyValue(val)) {
+                const value = val[PROXY_SET_VALUE];
+                delete val[PROXY_SET_VALUE];
+                return value;
+              }
 
-              return childNode.value;
+              return self._createChildNode(defaultValue, key, val).value;
             }
           : transmit
       );
@@ -33,13 +61,21 @@ export default class Model {
     });
   }
 
+  _createChildNode(defaultValue, key, val) {
+    const node = getTreeNode(this.$vm);
+    const childNode = defaultValue.instantiate(node, `${node.subpath}/${key}`, val);
+    node.replaceChildNode(key, childNode);
+    return childNode;
+  }
+
   _each(fn) {
     const dataTypes = this._dataTypes || calculateMixinsData(this.constructor.prototype);
 
     for (var key in dataTypes) {
       const result = function (defaultValue) {
         const isSchema = defaultValue instanceof BaseType;
-        return fn(key, dataTypes, defaultValue, isSchema);
+        const isComputed = false; // defaultValue instanceof IdentifierReferenceType;
+        return fn(key, dataTypes, defaultValue, isSchema, isComputed);
       }.call(this, dataTypes[key]);
 
       if (result === false) break;
@@ -52,11 +88,20 @@ export default class Model {
     data = data || {};
 
     // @todo 类型检查
-    self._each(function (key, _dataTypes, defaultValue, isSchema) {
-      res[key] = key in data ? data[key] : isSchema ? {} : defaultValue;
+    self._each(function (key, _dataTypes, defaultValue, isSchema, isComputed) {
+      res[key] = key in data ? data[key] : isSchema ? defaultValue.getDefaultSnapshot() : defaultValue;
 
       if (syncSet) {
-        self.data[key] = res[key];
+        const updateAll = syncSet === true;
+        if (isComputed) {
+          if (updateAll || syncSet === 'computed') {
+            self.$vm[key] = res[key];
+          }
+        } else {
+          if (updateAll || syncSet === 'data') {
+            self.data[key] = res[key];
+          }
+        }
       }
     });
 

@@ -1,4 +1,5 @@
 import { ScalarNode } from './ScalarNode';
+import { fail } from '../utils';
 
 export function toJSON() {
   return getTreeNode(this).snapshot;

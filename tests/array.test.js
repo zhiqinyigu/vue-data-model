@@ -4,26 +4,101 @@ const Card = types.vue({
   data() {
     return {
       id: 0,
-      filter: false
+      filter: false,
     };
-  }
+  },
 });
 
 const VM = types.vue({
   data() {
     return {
-      cardList: types.array(Card)
+      cardList: types.array(Card),
     };
   },
 
   computed: {
     availableList() {
-      return this.cardList.filter(item => item.filter);
+      return this.cardList.filter((item) => item.filter);
     },
     totalCount() {
       return this.cardList.length;
-    }
-  }
+    },
+  },
+});
+
+describe('变异方法应与原方法功能相同', () => {
+  const vm = VM.create({
+    cardList: [1, 2, 3, 4].map((id) => ({ id })),
+  });
+
+  it('初始化', () => {
+    expect(vm.cardList.slice(0)).toMatchObject([
+      { id: 1, filter: false },
+      { id: 2, filter: false },
+      { id: 3, filter: false },
+      { id: 4, filter: false },
+    ]);
+  });
+
+  it('push', () => {
+    vm.cardList.push(
+      { id: 5, filter: false },
+      { id: 6, filter: false },
+      { id: 7, filter: false },
+      { id: 8, filter: false },
+      { id: 9, filter: false },
+      { id: 10, filter: false }
+    );
+
+    expect(vm.cardList.slice(0)).toMatchObject([
+      { id: 1, filter: false },
+      { id: 2, filter: false },
+      { id: 3, filter: false },
+      { id: 4, filter: false },
+      { id: 5, filter: false },
+      { id: 6, filter: false },
+      { id: 7, filter: false },
+      { id: 8, filter: false },
+      { id: 9, filter: false },
+      { id: 10, filter: false },
+    ]);
+  });
+
+  it('splice', () => {
+    vm.cardList.splice(15, 2);
+    expect(vm.cardList.slice(0)).toMatchObject([
+      { id: 1, filter: false },
+      { id: 2, filter: false },
+      { id: 3, filter: false },
+      { id: 4, filter: false },
+      { id: 5, filter: false },
+      { id: 6, filter: false },
+      { id: 7, filter: false },
+      { id: 8, filter: false },
+      { id: 9, filter: false },
+      { id: 10, filter: false },
+    ]);
+
+    vm.cardList.splice(7);
+    expect(vm.cardList.slice(0)).toMatchObject([
+      { id: 1, filter: false },
+      { id: 2, filter: false },
+      { id: 3, filter: false },
+      { id: 4, filter: false },
+      { id: 5, filter: false },
+      { id: 6, filter: false },
+      { id: 7, filter: false },
+    ]);
+
+    vm.cardList.splice(4, 2);
+    expect(vm.cardList.slice(0)).toMatchObject([
+      { id: 1, filter: false },
+      { id: 2, filter: false },
+      { id: 3, filter: false },
+      { id: 4, filter: false },
+      { id: 7, filter: false },
+    ]);
+  });
 });
 
 describe('类型系统支持', () => {
@@ -40,7 +115,7 @@ describe('类型系统支持', () => {
 
   it('类型默认值', () => {
     vm = VM.create({
-      cardList: [{}]
+      cardList: [{}],
     });
 
     expect(vm.cardList instanceof Array).toBe(true);

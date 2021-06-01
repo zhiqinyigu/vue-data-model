@@ -9,3 +9,7 @@ export function normalizeIdentifier(str) {
 export function fail(message = 'Illegal state') {
   return new Error('[vue-data-model] ' + message);
 }
+
+export function logError(e) {
+  console.error(e);
+}

@@ -52,6 +52,7 @@ it('identifier类型不匹配不能创建', () => {
   expect(() => Foo.create(dataRepository.noIdFactory())).toThrow();
   expect(() => Foo.create(dataRepository.numberFactory())).toThrow();
 
-  expect(() => NumberFoo.create(dataRepository.numberFactory())).not.toThrow();
   expect(() => NumberFoo.create(dataRepository.noIdFactory())).toThrow();
+  expect(() => NumberFoo.create(dataRepository.stringFactory())).toThrow();
+  expect(() => NumberFoo.create(dataRepository.numberFactory())).not.toThrow();
 });

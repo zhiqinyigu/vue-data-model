@@ -56,9 +56,15 @@ export default class ModelWrapper extends ComplexType {
 
           try {
             optionsInstance._dormancy = false;
-            optionsInstance._calculateInitializeData(initialValue || {}, true);
+            optionsInstance._calculateInitializeData(initialValue || {}, 'data');
           } catch (e) {
             createError = e;
+          }
+        },
+        created() {
+          // optionsInstance._calculateInitializeData(initialValue || {}, 'computed');
+          if (this._beforeCreateData) {
+            this.$assign(this._beforeCreateData);
           }
         },
       },
