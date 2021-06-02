@@ -1,6 +1,6 @@
 {
   "name": "vue-data-model",
-  "version": "1.1.2",
+  "version": "1.2.0-beta",
   "description": "A reactive state container system based on Vue, inspired by mobx-state-tree",
   "main": "src/index.js",
   "directories": {
@@ -12,7 +12,8 @@
     "test": "cross-env BABEL_ENV=jest jest",
     "dev_test": "cross-env BABEL_ENV=jest jest tests/dev",
     "prepush": "npm run lint && npm run test",
-    "push": "npm run prepush && npm publish --access public"
+    "push": "npm run prepush && npm publish --access public",
+    "push-beta": "npm run prepush && npm publish --tag=beta --access public"
   },
   "keywords": [
     "vue",
