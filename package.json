@@ -1,8 +1,8 @@
 {
   "name": "vue-data-model",
-  "version": "1.2.0-beta",
+  "version": "1.2.1-beta",
   "description": "A reactive state container system based on Vue, inspired by mobx-state-tree",
-  "main": "src/index.js",
+  "main": "dist/vue-data-model.js",
   "directories": {
     "example": "example",
     "test": "tests"
@@ -11,9 +11,10 @@
     "lint": "eslint \"src/**/*.js\"",
     "test": "cross-env BABEL_ENV=jest jest",
     "dev_test": "cross-env BABEL_ENV=jest jest tests/dev",
+    "build": "webpack --config build/webpack.prod.js",
     "prepush": "npm run lint && npm run test",
-    "push": "npm run prepush && npm publish --access public",
-    "push-beta": "npm run prepush && npm publish --tag=beta --access public"
+    "push": "npm run prepush && npm run build && npm publish --access public",
+    "push-beta": "npm run prepush && npm run build && npm publish --tag=beta --access public"
   },
   "keywords": [
     "vue",
@@ -33,9 +34,13 @@
     "cross-env": "^7.0.3",
     "eslint": "^7.26.0",
     "jest": "^26.6.3",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "vue": "^2.5.16",
     "vue-jest": "^3.0.7",
-    "vue-template-compiler": "^2.5.16"
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0",
+    "webpack-merge": "^5.7.3"
   },
   "jest": {
     "moduleFileExtensions": [
