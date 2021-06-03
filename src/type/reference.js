@@ -1,6 +1,5 @@
-import Vue from 'vue';
 import { PROXY_SET_VALUE } from '../constant';
-import { fail, logError, normalizeIdentifier } from '../utils';
+import { fail, getVue, logError, normalizeIdentifier } from '../utils';
 import { getIdentifier, getTreeNode, isScalarNode, isTreeNodeValue } from '../node/node-utils';
 import { stringify } from './vue-utils';
 import { isValidIdentifier } from './identifier';
@@ -56,6 +55,7 @@ export class StoredReference {
 
 function createRef(initialValue, targetType, onChange) {
   const ref = new StoredReference(initialValue, targetType);
+  const Vue = getVue();
 
   const vm = new Vue({
     data: {
@@ -142,7 +142,7 @@ export class IdentifierReferenceType extends SimpleType {
   watchTargetNodeForInvalidations(storedRefNode, identifier, parent) {
     storedRefNode.root.referenceCache.addRef(storedRefNode, identifier);
     const _destroy = storedRefNode._destroy;
-    storedRefNode._destroy = function () {
+    storedRefNode._destroy = function() {
       _destroy.apply(this, arguments);
       parent.root.referenceCache.removeRefs(this, identifier);
     };

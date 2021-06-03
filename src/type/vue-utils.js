@@ -1,12 +1,12 @@
-import Vue from 'vue';
 import { PROXY_SET_VALUE } from '../constant';
 import { getTreeNode, isScalarNode } from '../node/node-utils';
+import { getVue } from '../utils';
 
 function desStringify(val) {
   return JSON.parse(JSON.stringify(val));
 }
 
-export function isCarryProxyValue (val) {
+export function isCarryProxyValue(val) {
   return val && typeof val === 'object' && PROXY_SET_VALUE in val;
 }
 
@@ -15,6 +15,7 @@ export function stringify(val) {
 }
 
 export function isVue(vm) {
+  const Vue = getVue();
   return vm instanceof Vue;
 }
 
@@ -35,7 +36,7 @@ export function pickData(vm) {
   const node = getTreeNode(vm);
   const childs = node.getChildNodes();
 
-  vm.$options._each(function (key) {
+  vm.$options._each(function(key) {
     let _val;
     const value = vm[key];
 

@@ -1,8 +1,8 @@
-import Vue from 'vue';
 import { toJsonForVue } from './vue-utils';
 import { ComplexType } from './base';
 import Model from '../model';
 import Identifier from './identifier';
+import { getVue } from '../utils';
 
 const defaultReplacer = (_, value) => value;
 const baseMixns = {
@@ -70,6 +70,7 @@ export default class ModelWrapper extends ComplexType {
       },
     ].concat(optionsInstance.mixins);
 
+    const Vue = getVue();
     const vm = new Vue(optionsInstance);
 
     if (createError) {

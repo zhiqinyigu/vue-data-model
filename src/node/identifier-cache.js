@@ -1,10 +1,11 @@
-import Vue from 'vue';
-import { fail } from '../utils';
+import { fail, getVue } from '../utils';
 
 let identifierCacheId = 0;
 
 export class IdentifierCache {
   constructor() {
+    const Vue = getVue();
+
     this.cacheId = identifierCacheId++;
     this.cache = new Map();
     this.lastCacheModificationPerId = new Vue({
