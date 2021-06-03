@@ -1,8 +1,8 @@
 {
   "name": "vue-data-model",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "description": "A reactive state container system based on Vue, inspired by mobx-state-tree",
-  "main": "src/index.js",
+  "main": "dist/vue-data-model.js",
   "directories": {
     "example": "example",
     "test": "tests"
@@ -10,8 +10,11 @@
   "scripts": {
     "lint": "eslint \"src/**/*.js\"",
     "test": "cross-env BABEL_ENV=jest jest",
+    "dev_test": "cross-env BABEL_ENV=jest jest tests/dev",
+    "build": "webpack --config build/webpack.prod.js",
     "prepush": "npm run lint && npm run test",
-    "push": "npm run prepush && npm publish --access public"
+    "push": "npm run prepush && npm run build && npm publish --access public",
+    "push-beta": "npm run prepush && npm run build && npm publish --tag=beta --access public"
   },
   "keywords": [
     "vue",
@@ -21,19 +24,27 @@
   "author": "cyc",
   "license": "ISC",
   "devDependencies": {
+    "@babel/cli": "^7.14.3",
+    "@babel/core": "^7.14.3",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-syntax-jsx": "^7.12.13",
+    "@babel/plugin-transform-modules-commonjs": "^7.14.0",
+    "@babel/preset-env": "^7.14.4",
     "@vue/test-utils": "^1.2.0",
-    "babel-core": "^6.26.3",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
-    "babel-plugin-syntax-dynamic-import": "^6.18.0",
-    "babel-plugin-syntax-jsx": "^6.18.0",
-    "babel-preset-env": "^1.7.0",
+    "babel-loader": "^8.2.2",
+    "browserslist": "^4.16.6",
     "cross-env": "^7.0.3",
     "eslint": "^7.26.0",
     "jest": "^26.6.3",
     "vue": "^2.5.16",
-    "vue-jest": "^3.0.7",
-    "vue-template-compiler": "^2.5.16"
+    "vue-jest": "^4.0.1",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^5.38.1",
+    "webpack-cli": "^4.7.0",
+    "webpack-merge": "^5.7.3"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -46,7 +57,14 @@
       ".*\\.(vue)$": "vue-jest"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@babel/runtime": "^7.14.0"
+  },
+  "browserslist": [
+    "Android >= 5.0",
+    "iOS 9"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/zhiqinyigu/vue-data-model.git"

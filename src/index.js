@@ -4,6 +4,7 @@ import ModelWrapper from './type/vue';
 import Union from './type/union';
 import ValueObject from './type/vo';
 import { getComposeRawMaterial } from './type/compose';
+import { setVue } from './utils';
 
 function getParent(target, depth) {
   let parent = target;
@@ -103,4 +104,6 @@ const types = {
 };
 
 export { types, getParent };
-export default ModelWrapper;
+export default {
+  install: setVue,
+};

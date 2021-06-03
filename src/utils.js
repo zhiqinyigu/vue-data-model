@@ -1,6 +1,28 @@
 import Vue from 'vue';
 
+let _Vue;
+
 const slice = Array.prototype.slice;
+
+export function getVue() {
+  const lib = _Vue || Vue || window.Vue;
+  if (!lib) {
+    throw new Error(`
+      "Vue-data-model" depends on Vue, window.vue was not found.
+      Please use "Vue.use()" to inject Vue dependencies in your app.
+      For example:
+
+      import Vue from 'vue';
+      import VDM from 'vue-data-model';
+      Vue.use(VDM);
+    `);
+  }
+  return lib;
+}
+
+export function setVue(Vue) {
+  _Vue = Vue;
+}
 
 export function toArray(arr) {
   return slice.call(arr);
@@ -15,7 +37,7 @@ export function calculateMixinsData(config) {
 }
 
 export function applyToJSON(vm) {
-  if (vm instanceof Vue) {
+  if (vm instanceof getVue()) {
     return vm.$toValue ? vm.$toValue() : toJSON(vm);
   }
 

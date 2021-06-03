@@ -1,7 +1,6 @@
-import Vue from 'vue';
 import Type from '.';
 import Model from '../model';
-import { bindParent, toJSON } from '../utils';
+import { bindParent, getVue, toJSON } from '../utils';
 
 const defaultReplacer = (_, value) => value;
 const baseMixns = {
@@ -59,6 +58,7 @@ export default class ModelWrapper extends Type {
       },
     ].concat(optionsInstance.mixins);
 
+    const Vue = getVue();
     const vm = new Vue(optionsInstance);
 
     if (createError) {
