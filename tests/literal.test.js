@@ -1,4 +1,4 @@
-import { types } from '..';
+import { types } from '../src';
 
 const L1 = types.literal(1);
 

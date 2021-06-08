@@ -27,7 +27,7 @@ export default class ArrayType extends ComplexType {
 
         switch (action) {
           case 'splice':
-            (function () {
+            (function() {
               let [start, removeCount, ...added] = args;
               let realremoveCount = 0;
               const addedSize = added.length;
@@ -110,4 +110,23 @@ export default class ArrayType extends ComplexType {
   is(val) {
     return val instanceof VariationArray && !!val._overwriteParams;
   }
+}
+
+/**
+ * 定义一个数组类型，规定子元素为Type类型
+ * @param {Type} Type 类型
+ * @returns ArrayType
+ * @example
+ * const Course = types.vue({
+ *  data() {
+ *    return {
+ *      businessType: 1
+ *    }
+ *  }
+ * });
+ *
+ * types.array(Course);
+ */
+export function array(Type) {
+  return new ArrayType(Type);
 }

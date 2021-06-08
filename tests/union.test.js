@@ -1,4 +1,4 @@
-import { types } from '..';
+import { types } from '../src';
 
 it('结合literal使用', () => {
   // 男人

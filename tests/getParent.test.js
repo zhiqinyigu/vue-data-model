@@ -1,4 +1,4 @@
-import { getParent, types } from '..';
+import { getParent, types } from '../src';
 import { Root } from './helper';
 
 describe('getParent基本用法', () => {

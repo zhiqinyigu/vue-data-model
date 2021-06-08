@@ -25,3 +25,6 @@ export default class Identifier extends SimpleType {
     return this.validType === typeof val;
   }
 }
+
+export const identifier = new Identifier('string');
+export const identifierNumber = new Identifier('number');

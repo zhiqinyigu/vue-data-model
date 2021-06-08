@@ -1,7 +1,8 @@
 import { toArray } from '../utils';
-import { baseMixns } from './vue';
+import { baseMixns, vue } from './vue';
+import { vo } from './vo';
 
-const getComposeRawMaterial = function () {
+export function getComposeRawMaterial() {
   return Object.assign({
     mixins: toArray(arguments).map((wrapper) => {
       return {
@@ -10,6 +11,11 @@ const getComposeRawMaterial = function () {
       };
     }),
   });
-};
+}
 
-export { getComposeRawMaterial };
+export function compose() {
+  return vue(getComposeRawMaterial(...arguments));
+}
+export function composeVo() {
+  return vo(undefined, getComposeRawMaterial(...arguments));
+}

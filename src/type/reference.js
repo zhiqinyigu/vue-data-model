@@ -163,3 +163,7 @@ export class IdentifierReferenceType extends SimpleType {
     // @todo
   }
 }
+
+export function reference(subType) {
+  return new IdentifierReferenceType(subType);
+}

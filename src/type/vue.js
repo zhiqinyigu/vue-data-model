@@ -47,7 +47,7 @@ export default class ModelWrapper extends ComplexType {
           this.__model__ = self._model_;
           bindNode && bindNode(this);
 
-          optionsInstance._each(function (key, _dataTypes, defaultValue) {
+          optionsInstance._each(function(key, _dataTypes, defaultValue) {
             if (defaultValue instanceof Identifier) {
               self.identifierAttribute = key;
               return false;
@@ -96,6 +96,15 @@ export default class ModelWrapper extends ComplexType {
       }
     }
   }
+}
+
+/**
+ * 基于一个 vue 组件定义创建一个类型。
+ * @param {Object} config vue组件定义对象
+ * @returns Vue
+ */
+export function vue(config) {
+  return new ModelWrapper(config);
 }
 
 export { baseMixns, createStateModel };

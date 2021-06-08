@@ -40,3 +40,7 @@ export default class Union extends ComplexType {
     return false;
   }
 }
+
+export function union(...list) {
+  return new Union(list);
+}

@@ -27,7 +27,7 @@ export default class ValueObject extends ComplexType {
     const typeofForType = typeof type;
     const _calculateInitializeData = this._model_.prototype._calculateInitializeData;
 
-    this._model_.prototype._calculateInitializeData = function (value, ...other) {
+    this._model_.prototype._calculateInitializeData = function(value, ...other) {
       return _calculateInitializeData.call(
         this,
         {
@@ -55,4 +55,14 @@ export default class ValueObject extends ComplexType {
   is(vm) {
     return ModelWrapper.prototype.is.call(this, vm);
   }
+}
+
+/**
+ * 基于一个 vue 组件定义创建一个类型，类似于`types.vue`，用于创建 _DDD_ 的 _Value Object_。唯一区别`types.vo`不需要接受 data 定义，内部将实际的值放在 value 字段下。
+ * @param {any}    Type   类型对象或其它字面量，表示默认值。
+ * @param {Object} config vue组件定义对象
+ * @returns Vue
+ */
+export function vo(Type, config) {
+  return new ValueObject(Type, config);
 }

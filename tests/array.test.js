@@ -1,4 +1,4 @@
-import { types } from '..';
+import { types } from '../src';
 
 const Card = types.vue({
   data() {
