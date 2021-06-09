@@ -9,6 +9,7 @@ import { identifier, identifierNumber } from './identifier';
 import { reference } from './reference';
 import { optional } from './optional';
 import { maybe, maybeNull } from './maybe';
+import { late } from './late';
 
 export * from './base';
 
@@ -30,5 +31,6 @@ export const types = {
   reference,
   optional,
   maybe,
-  maybeNull
+  maybeNull,
+  late,
 };

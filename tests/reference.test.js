@@ -13,8 +13,8 @@ const FooStore = types.vue({
   data() {
     return {
       foo: types.reference(Foo),
-      refs: types.array(types.reference(Foo)),
-      foos: types.array(Foo),
+      refs: types.optional(types.array(types.reference(Foo)), () => []),
+      foos: types.optional(types.array(Foo), () => []),
     };
   },
 });

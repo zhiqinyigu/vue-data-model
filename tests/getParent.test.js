@@ -4,7 +4,7 @@ import { Root } from './helper';
 describe('getParent基本用法', () => {
   const root = Root.create({
     array: [{}],
-    obj: {}
+    obj: {},
   });
 
   const arrayChild = root.array[0];
@@ -24,31 +24,33 @@ describe('getParent其它应用场景', () => {
   it('在子元素初始化周期访问parent', () => {
     let _parentAtCreate;
 
-    const Parent = types.vue({
-      data() {
-        return {
-          name: 'parent',
-          child: Child
-        };
-      }
-    });
-
     const Child = types.vue({
       data() {
         return {
-          name: 'child'
+          name: 'child',
         };
       },
 
       created() {
         expect(true).toBe(true);
         _parentAtCreate = getParent(this);
-      }
+      },
+    });
+
+    const Parent = types.vue({
+      data() {
+        return {
+          name: 'parent',
+          child: Child,
+        };
+      },
     });
 
     expect.assertions(2);
 
-    const parent = Parent.create();
+    const parent = Parent.create({
+      child: {},
+    });
 
     expect(_parentAtCreate).toBe(parent);
   });

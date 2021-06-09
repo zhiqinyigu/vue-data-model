@@ -76,6 +76,46 @@ console.log(todoDefaultValue.isDone === false); // true
 console.log(Todo.create() instanceof Vue) // true
 ```
 
+## 与 1.1.x 不兼容的破坏性更新：
+
+1. types.vue 在定义时，将计算一次 date()来提取子节点类型，并缓存起来。这意味着 data()将同步执行一次。
+   例如：
+
+```javascript
+const Parent = types.vue({
+  data() {
+    return {
+      name: 'parent',
+      child: Child, // 这里访问不到Child，需要将Child的定义提升到Parent之前，或者使用types.late(() => Child)
+    };
+  },
+});
+
+const Child = types.vue({
+  data() {
+    return {
+      name: 'child',
+    };
+  },
+});
+```
+
+2. model 的类型节点不再支持 null/undefined 来初始化，这意味着它们是初始化的必填项。
+   例如：
+
+```javascript
+// 接着上面的例子
+Parent.create(); // will throw error
+Parent.create({}); // will throw error
+
+// correct
+Parent.create({
+  child: {},
+});
+
+// 或者Parent的child改为types.optional(Child, () => {})或types.maybe(Child)定义
+```
+
 ## API
 
 ### types
@@ -262,7 +302,7 @@ console.log('remove' in todoList.list[0]) // true
 
 ### state
 
-- **$toValue(replacer)**
+- **\$toValue(replacer)**
   将 state 转成一个纯对象，只包含 data 域的内容。replacer 是 `JSON.stringify(data, replacer)` 的参数。
 
 ```JavaScript
@@ -274,7 +314,7 @@ console.log(todo.$toValue());
 
 ```
 
-- **$assign(data, replacer = defaultReplacer)**
+- **\$assign(data, replacer = defaultReplacer)**
   安全的对 state 进行赋值。
 
 ```JavaScript

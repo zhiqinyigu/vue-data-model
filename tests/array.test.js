@@ -105,7 +105,9 @@ describe('类型系统支持', () => {
   let vm;
 
   beforeEach(() => {
-    vm = VM.create();
+    vm = VM.create({
+      cardList: [],
+    });
   });
 
   it('初始化默认值', () => {
@@ -131,7 +133,9 @@ describe('常用的变异方法能导致更新', () => {
   let vm;
 
   beforeEach(() => {
-    vm = VM.create();
+    vm = VM.create({
+      cardList: [],
+    });
   });
 
   it('push', () => {

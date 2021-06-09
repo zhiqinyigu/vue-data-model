@@ -5,29 +5,22 @@ const defaultSnapshot = {
   name: 'root',
   obj: {
     name: 'parent',
-    child: {
-      name: 'child'
-    }
   },
-  array: []
+  array: [],
 };
 
 describe('类型系统支持', () => {
   let vm;
 
   beforeEach(() => {
-    vm = Root.create();
+    vm = Root.create({
+      obj: {},
+      array: [],
+    });
   });
 
-  it('可以不传参数进行初始化', () => {
+  it('基本使用', () => {
     expect(vm.$toValue()).toMatchObject(defaultSnapshot);
-
-    expect(vm.$toValue()).toMatchObject(
-      Root.create({
-        array: [],
-        obj: {}
-      }).$toValue()
-    );
   });
 
   it('array数组基本使用', () => {
@@ -55,14 +48,17 @@ describe('响应式特性', () => {
     data() {
       return {
         count: 1,
-        vm: Root.create()
+        vm: Root.create({
+          obj: {},
+          array: [],
+        }),
       };
     },
     computed: {
       childCount() {
         return this.vm.array.length;
-      }
-    }
+      },
+    },
   };
 
   it('能被vue跟踪', async () => {
