@@ -1,4 +1,4 @@
-import { fail } from '../utils';
+import { typeCheckFailure, typecheckInternal, typeCheckSuccess } from '../checker';
 import { SimpleType } from './base';
 
 export function isValidIdentifier(id) {
@@ -7,22 +7,24 @@ export function isValidIdentifier(id) {
 
 export default class Identifier extends SimpleType {
   constructor(type) {
-    super();
+    super('identifier');
     this.validType = type;
   }
 
-  createNewInstance(val) {
-    const match = this.is(val);
-
-    if (match) {
-      return val;
-    }
-
-    throw fail(`value \`${val}\` is not assignable to type: \`${this.validType}\``);
+  describe() {
+    return 'identifier';
   }
 
-  is(val) {
-    return this.validType === typeof val;
+  createNewInstance(val) {
+    typecheckInternal(this, val);
+    return val;
+  }
+
+  isValidSnapshot(value, context) {
+    if (typeof value !== this.validType) {
+      return typeCheckFailure(context, value, `Value is not a valid ${this.describe()}, expected a ${this.validType}`);
+    }
+    return typeCheckSuccess();
   }
 }
 

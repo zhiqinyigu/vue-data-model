@@ -1,6 +1,6 @@
 const NodeLifeCycle = {
   DEAD: 0,
-  FINALIZED: 1,
+  FINALIZED: 1
 };
 
 let _uid = 1;

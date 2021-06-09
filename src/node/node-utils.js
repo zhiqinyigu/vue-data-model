@@ -13,8 +13,16 @@ export function isScalarNode(node) {
   return node instanceof ScalarNode;
 }
 
-export function getTreeNode(node) {
-  return node.$treenode;
+export function getTreeNode(value) {
+  return value.$treenode;
+}
+
+export function getType(object) {
+  return getTreeNode(object).type;
+}
+
+export function getTreeNodeSafe(value) {
+  return (value && value.$treenode) || null;
 }
 
 export function getIdentifier(target) {

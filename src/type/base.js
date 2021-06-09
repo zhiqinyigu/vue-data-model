@@ -1,13 +1,17 @@
 import { fail } from '../utils';
+import { typeCheckFailure, typeCheckSuccess } from '../checker';
 import { createObjectNode, createScalarNode } from '../node/create-node';
+import { getTreeNodeSafe, getType } from '../node/node-utils';
 
-const abstractBaseMethods = ['is', 'instantiate', 'createNewInstance'];
+const abstractBaseMethods = [/* 'isValidSnapshot', */ 'instantiate'];
 
 class BaseType {
   identifierAttribute;
 
-  constructor() {
-    abstractBaseMethods.forEach((key) => {
+  constructor(name) {
+    this.name = name;
+
+    abstractBaseMethods.forEach(key => {
       if (typeof this[key] !== 'function') {
         throw fail(`BaseType must realize "${key}" methods`);
       }
@@ -21,21 +25,22 @@ class BaseType {
   isAssignableFrom(type) {
     return type === this;
   }
-}
 
-// const abstractComplexMethods = ['_getChilds'];
-
-class ComplexType extends BaseType {
-  constructor() {
-    super();
-
-    // abstractComplexMethods.forEach((key) => {
-    //   if (typeof this[key] !== 'function') {
-    //     throw fail(`ComplexType must realize "${key}" methods`);
-    //   }
-    // });
+  validate(value, context) {
+    const node = getTreeNodeSafe(value);
+    if (node) {
+      const valueType = getType(value);
+      return this.isAssignableFrom(valueType) ? typeCheckSuccess() : typeCheckFailure(context, value);
+    }
+    return this.isValidSnapshot(value, context);
   }
 
+  is(thing) {
+    return this.validate(thing, [{ path: '', type: this }]).length === 0;
+  }
+}
+
+class ComplexType extends BaseType {
   create(snapshot = this.getDefaultSnapshot(), environment) {
     return super.create(snapshot, environment);
   }

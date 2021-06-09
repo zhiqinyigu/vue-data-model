@@ -1,11 +1,12 @@
-import { fail } from '../utils';
-import { BaseType, ComplexType } from './base';
+import { typeCheckSuccess } from '../checker';
+import { fail, isType } from '../utils';
+import { ComplexType } from './base';
 import ModelWrapper, { createStateModel } from './vue';
 import { toJsonForMaybeVue } from './vue-utils';
 
 export default class ValueObject extends ComplexType {
-  constructor(type, config) {
-    super();
+  constructor(defaultValue, config) {
+    super('vo');
 
     if (typeof config === 'undefined') {
       throw fail(
@@ -17,27 +18,28 @@ export default class ValueObject extends ComplexType {
       Object.assign({}, config, {
         data() {
           return {
-            value: type,
+            value: defaultValue,
           };
         },
       })
     );
 
-    const isSchema = type instanceof BaseType;
-    const typeofForType = typeof type;
+    const typeofForType = typeof defaultValue;
     const _calculateInitializeData = this._model_.prototype._calculateInitializeData;
+
+    if (isType(defaultValue)) {
+      this._subType = defaultValue;
+    }
 
     this._model_.prototype._calculateInitializeData = function(value, ...other) {
       return _calculateInitializeData.call(
         this,
         {
-          value: isSchema
-            ? type.is(value)
-              ? value
-              : type.create(value, this)
-            : typeof value === typeof type || typeofForType === 'undefined' || type === null
+          value: this._subType
+            ? this._subType.create(value, this)
+            : typeof value === typeof defaultValue || typeofForType === 'undefined' || defaultValue === null
             ? value
-            : type,
+            : defaultValue,
         },
         ...other
       );
@@ -52,8 +54,12 @@ export default class ValueObject extends ComplexType {
     return toJsonForMaybeVue(node.storedValue.value);
   }
 
-  is(vm) {
-    return ModelWrapper.prototype.is.call(this, vm);
+  isValidSnapshot(value, context) {
+    if (this._subType) {
+      return this._subType.validate(value, context);
+    }
+
+    return typeCheckSuccess();
   }
 }
 

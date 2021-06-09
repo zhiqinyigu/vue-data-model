@@ -1,7 +1,6 @@
 import { nullType, undefinedType } from './primitives';
+import { optional } from './optional';
 import { union } from './union';
-
-const optional = function() {};
 
 const optionalUndefinedType = optional(undefinedType, undefined);
 const optionalNullType = optional(nullType, null);

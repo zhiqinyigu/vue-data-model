@@ -5,6 +5,7 @@ import { stringify } from './vue-utils';
 import { isValidIdentifier } from './identifier';
 import { SimpleType } from './base';
 import { createScalarNode } from '../node/create-node';
+import { typeCheckFailure, typecheckInternal, typeCheckSuccess } from '../checker';
 
 export class StoredReference {
   identifier;
@@ -47,7 +48,7 @@ export class StoredReference {
 
       this.resolvedReference = {
         node: target,
-        lastCacheModification: lastCacheModification,
+        lastCacheModification: lastCacheModification
       };
     }
   }
@@ -59,7 +60,7 @@ function createRef(initialValue, targetType, onChange) {
 
   const vm = new Vue({
     data: {
-      isMounted: false,
+      isMounted: false
     },
     computed: {
       ref() {
@@ -72,11 +73,11 @@ function createRef(initialValue, targetType, onChange) {
 
         onChange && onChange(value);
         return value;
-      },
+      }
     },
     watch: {
-      resolvedValue() {},
-    },
+      resolvedValue() {}
+    }
   });
 
   vm.node = null;
@@ -88,8 +89,12 @@ export class IdentifierReferenceType extends SimpleType {
   targetType;
 
   constructor(targetType) {
-    super();
+    super(`reference(${targetType.name})`);
     this.targetType = targetType;
+  }
+
+  describe() {
+    return this.name;
   }
 
   isAssignableFrom(type) {
@@ -102,8 +107,11 @@ export class IdentifierReferenceType extends SimpleType {
       : isScalarNode(initialValue)
       ? initialValue.identifier
       : initialValue;
+
+    typecheckInternal(this, identifier);
+
     let lastVal;
-    const storedRef = createRef(identifier, this.targetType, (val) => {
+    const storedRef = createRef(identifier, this.targetType, val => {
       const key = subpath.match(/([^/]+)$/)[0];
       const parentStoredValue = parent.storedValue;
 
@@ -159,8 +167,10 @@ export class IdentifierReferenceType extends SimpleType {
     return storedRef.ref.identifier;
   }
 
-  is() {
-    // @todo
+  isValidSnapshot(value, context) {
+    return isValidIdentifier(value)
+      ? typeCheckSuccess()
+      : typeCheckFailure(context, value, 'Value is not a valid identifier, which is a string or a number');
   }
 }
 

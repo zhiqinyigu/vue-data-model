@@ -1,4 +1,5 @@
-import { fail } from '../utils';
+import { typeCheckFailure, typeCheckSuccess } from '../checker';
+import { fail, isPrimitive } from '../utils';
 import { SimpleType } from './base';
 
 function defaultInitializer(val) {
@@ -24,6 +25,14 @@ export class CoreType extends SimpleType {
 
   is(val) {
     return this.checker(val);
+  }
+
+  isValidSnapshot(value, context) {
+    if (isPrimitive(value) && this.checker(value)) {
+      return typeCheckSuccess();
+    }
+    const typeName = this.name === 'Date' ? 'Date or a unix milliseconds timestamp' : this.name;
+    return typeCheckFailure(context, value, `Value is not a ${typeName}`);
   }
 }
 

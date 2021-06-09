@@ -1,9 +1,10 @@
 import { PROXY_SET_VALUE } from '../constant';
 import { getTreeNode, isScalarNode } from '../node/node-utils';
 import { isCarryProxyValue, toJsonForMaybeVue } from './vue-utils';
-import { fail } from '../utils';
+import { fail, isArray } from '../utils';
 import { ComplexType } from './base';
 import VariationArray from '../VariationArray';
+import { flattenTypeErrors, getContextForPath, typeCheckFailure } from '../checker';
 
 export default class ArrayType extends ComplexType {
   constructor(Type) {
@@ -107,8 +108,14 @@ export default class ArrayType extends ComplexType {
     });
   }
 
-  is(val) {
-    return val instanceof VariationArray && !!val._overwriteParams;
+  isValidSnapshot(value, context) {
+    if (!isArray(value)) {
+      return typeCheckFailure(context, value, 'Value is not an array');
+    }
+
+    return flattenTypeErrors(
+      value.map((item, index) => this._subType.validate(item, getContextForPath(context, '' + index, this._subType)))
+    );
   }
 }
 

@@ -1,24 +1,28 @@
-import { fail } from '../utils';
+import { typeCheckFailure, typecheckInternal, typeCheckSuccess } from '../checker';
+import { isPrimitive } from '../utils';
 import { SimpleType } from './base';
 
 export default class Literal extends SimpleType {
   constructor(val) {
-    super();
+    super(JSON.stringify(val));
     this.literal = val;
   }
 
-  createNewInstance(val) {
-    const match = this.is(val);
-
-    if (match) {
-      return this.literal;
-    }
-
-    throw fail(`value \`${val}\` is not assignable to type: \`${this.literal}\``);
+  describe() {
+    return JSON.stringify(this.literal);
   }
 
-  is(val) {
-    return this.literal === val;
+  createNewInstance(val) {
+    typecheckInternal(this, val);
+
+    return this.literal;
+  }
+
+  isValidSnapshot(value, context) {
+    if (isPrimitive(value) && value === this.literal) {
+      return typeCheckSuccess();
+    }
+    return typeCheckFailure(context, value, `Value is not a literal ${JSON.stringify(this.value)}`);
   }
 }
 

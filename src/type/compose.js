@@ -4,18 +4,20 @@ import { vo } from './vo';
 
 export function getComposeRawMaterial() {
   return Object.assign({
-    mixins: toArray(arguments).map((wrapper) => {
+    mixins: toArray(arguments).map(wrapper => {
       return {
         ...wrapper._model_.prototype,
-        mixins: wrapper._model_.prototype.mixins.filter((item) => item !== baseMixns),
+        mixins: wrapper._model_.prototype.mixins.filter(item => item !== baseMixns)
       };
-    }),
+    })
   });
 }
 
-export function compose() {
-  return vue(getComposeRawMaterial(...arguments));
+export function compose(...args) {
+  const name = typeof args[0] === 'string' ? args.shift() : 'AnonymousModel(compose)';
+
+  return vue(name, getComposeRawMaterial(...args));
 }
-export function composeVo() {
-  return vo(undefined, getComposeRawMaterial(...arguments));
+export function composeVo(...types) {
+  return vo(undefined, getComposeRawMaterial(...types));
 }

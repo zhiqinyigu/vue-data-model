@@ -1,8 +1,9 @@
 import { PROXY_SET_VALUE } from './constant';
 import proxy, { transmit } from './proxy';
-import { BaseType } from './type';
 import { getTreeNode } from './node/node-utils';
 import { calculateMixinsData, isCarryProxyValue } from './type/vue-utils';
+import { typecheckInternal } from './checker';
+import { isType } from './utils';
 
 export default class Model {
   constructor() {
@@ -12,7 +13,7 @@ export default class Model {
     self.data = {};
     self._each = self._each.bind(self);
 
-    self._each(function (key, dataTypes, defaultValue, isSchema) {
+    self._each(function(key, dataTypes, defaultValue, isSchema) {
       // if (isComputed) {
       //   const ref = new StoredReference('', defaultValue);
 
@@ -43,7 +44,7 @@ export default class Model {
         dataTypes,
         key,
         isSchema
-          ? (val) => {
+          ? val => {
               if (self._dormancy) return;
 
               if (isCarryProxyValue(val)) {
@@ -62,6 +63,8 @@ export default class Model {
   }
 
   _createChildNode(defaultValue, key, val) {
+    typecheckInternal(defaultValue, val);
+
     const node = getTreeNode(this.$vm);
     const childNode = defaultValue.instantiate(node, `${node.subpath}/${key}`, val);
     node.replaceChildNode(key, childNode);
@@ -72,8 +75,8 @@ export default class Model {
     const dataTypes = this._dataTypes || calculateMixinsData(this.constructor.prototype);
 
     for (var key in dataTypes) {
-      const result = function (defaultValue) {
-        const isSchema = defaultValue instanceof BaseType;
+      const result = function(defaultValue) {
+        const isSchema = isType(defaultValue);
         const isComputed = false; // defaultValue instanceof IdentifierReferenceType;
         return fn(key, dataTypes, defaultValue, isSchema, isComputed);
       }.call(this, dataTypes[key]);
@@ -88,8 +91,8 @@ export default class Model {
     data = data || {};
 
     // @todo 类型检查
-    self._each(function (key, _dataTypes, defaultValue, isSchema, isComputed) {
-      res[key] = key in data ? data[key] : isSchema ? defaultValue.getDefaultSnapshot() : defaultValue;
+    self._each(function(key, _dataTypes, defaultValue, isSchema, isComputed) {
+      res[key] = key in data ? data[key] : isSchema ? undefined : defaultValue;
 
       if (syncSet) {
         const updateAll = syncSet === true;

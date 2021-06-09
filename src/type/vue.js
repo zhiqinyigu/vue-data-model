@@ -2,8 +2,10 @@ import { toJsonForVue } from './vue-utils';
 import { ComplexType } from './base';
 import Model from '../model';
 import Identifier from './identifier';
-import { getVue } from '../utils';
+import { getVue, isPlainObject } from '../utils';
+import { flattenTypeErrors, getContextForPath, typeCheckFailure, typecheckInternal } from '../checker';
 
+const defaultObjectOptions = { name: 'AnonymousModel' };
 const defaultReplacer = (_, value) => value;
 const baseMixns = {
   methods: {
@@ -15,15 +17,15 @@ const baseMixns = {
           }
         }
       }
-    },
-  },
+    }
+  }
 };
 
 function createStateModel(config) {
   class StateModel extends Model {}
 
   Object.assign(StateModel.prototype, config, {
-    mixins: [baseMixns, ...(config.mixins || [])],
+    mixins: [baseMixns, ...(config.mixins || [])]
   });
 
   return StateModel;
@@ -31,11 +33,27 @@ function createStateModel(config) {
 
 export default class ModelWrapper extends ComplexType {
   constructor(config) {
-    super();
+    super(config.name || defaultObjectOptions.name);
     this._model_ = createStateModel(config);
+
+    const properties = (this.properties = {});
+
+    new this._model_()._each(function(key, _dataTypes, defaultValue, isSchema) {
+      if (isSchema) {
+        properties[key] = defaultValue;
+      }
+    });
+
+    this.propertyNames = Object.keys(this.properties);
+  }
+
+  describe() {
+    return '{ ' + this.propertyNames.map(key => key + ': ' + this.properties[key].describe()).join('; ') + ' }';
   }
 
   createNewInstance(initialValue, bindNode) {
+    typecheckInternal(this, initialValue);
+
     const self = this;
     const optionsInstance = new self._model_();
     let createError;
@@ -56,7 +74,7 @@ export default class ModelWrapper extends ComplexType {
 
           try {
             optionsInstance._dormancy = false;
-            optionsInstance._calculateInitializeData(initialValue || {}, 'data');
+            optionsInstance._calculateInitializeData(initialValue, 'data');
           } catch (e) {
             createError = e;
           }
@@ -66,8 +84,8 @@ export default class ModelWrapper extends ComplexType {
           if (this._beforeCreateData) {
             this.$assign(this._beforeCreateData);
           }
-        },
-      },
+        }
+      }
     ].concat(optionsInstance.mixins);
 
     const Vue = getVue();
@@ -84,17 +102,16 @@ export default class ModelWrapper extends ComplexType {
     return toJsonForVue(node.storedValue);
   }
 
-  is(vm) {
-    if (vm.__model__) {
-      return vm.__model__ === this._model_;
-    } else {
-      try {
-        this.create(vm);
-        return true;
-      } catch (e) {
-        return false;
-      }
+  isValidSnapshot(snapshot, context) {
+    if (!isPlainObject(snapshot)) {
+      return typeCheckFailure(context, snapshot, 'Value is not a plain object');
     }
+
+    return flattenTypeErrors(
+      this.propertyNames.map(key =>
+        this.properties[key].validate(snapshot[key], getContextForPath(context, key, this.properties[key]))
+      )
+    );
   }
 }
 
@@ -103,8 +120,10 @@ export default class ModelWrapper extends ComplexType {
  * @param {Object} config vue组件定义对象
  * @returns Vue
  */
-export function vue(config) {
-  return new ModelWrapper(config);
+export function vue(...args) {
+  const name = typeof args[0] === 'string' && args.shift();
+  const config = args.shift() || {};
+  return new ModelWrapper({ ...config, name: name || config.name });
 }
 
 export { baseMixns, createStateModel };
