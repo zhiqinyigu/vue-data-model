@@ -19,5 +19,5 @@ export function compose(...args) {
   return vue(name, getComposeRawMaterial(...args));
 }
 export function composeVo(...types) {
-  return vo(undefined, getComposeRawMaterial(...types));
+  return vo(types[types.length - 1]._subType, getComposeRawMaterial(...types));
 }

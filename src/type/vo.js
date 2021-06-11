@@ -8,6 +8,8 @@ export default class ValueObject extends ComplexType {
   constructor(defaultValue, config) {
     super('vo');
 
+    const self = this;
+
     if (typeof config === 'undefined') {
       throw fail(
         `expected type or literal as argument 1, vue component options as argument 2, but only one was received.`
@@ -18,9 +20,9 @@ export default class ValueObject extends ComplexType {
       Object.assign({}, config, {
         data() {
           return {
-            value: defaultValue,
+            value: defaultValue
           };
-        },
+        }
       })
     );
 
@@ -35,11 +37,11 @@ export default class ValueObject extends ComplexType {
       return _calculateInitializeData.call(
         this,
         {
-          value: this._subType
-            ? this._subType.create(value, this)
+          value: self._subType
+            ? self._subType.create(value, self)
             : typeof value === typeof defaultValue || typeofForType === 'undefined' || defaultValue === null
             ? value
-            : defaultValue,
+            : defaultValue
         },
         ...other
       );

@@ -28,7 +28,10 @@ export function toJsonForVue(vm, replacer) {
 }
 
 export function calculateMixinsData(config) {
-  return Object.assign(...(config.mixins || []).map(calculateMixinsData), config.data ? config.data.call(null) : {});
+  return Object.assign(
+    ...(config.mixins || []).map(calculateMixinsData),
+    typeof config.data === 'function' ? config.data.call(null) : config.data || {}
+  );
 }
 
 export function pickData(vm) {
