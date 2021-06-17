@@ -7,13 +7,17 @@ import VariationArray from '../VariationArray';
 import { flattenTypeErrors, getContextForPath, typeCheckFailure } from '../checker';
 
 export default class ArrayType extends ComplexType {
-  constructor(Type) {
-    super();
+  constructor(name, Type) {
+    super(name);
     if (!Type) {
       throw fail(`expected type as argument 1, got ${Type} instead`);
     }
 
     this._subType = Type;
+  }
+
+  describe() {
+    return this._subType.describe() + '[]';
   }
 
   createNewInstance(array, bindNode) {
@@ -135,5 +139,5 @@ export default class ArrayType extends ComplexType {
  * types.array(Course);
  */
 export function array(Type) {
-  return new ArrayType(Type);
+  return new ArrayType(Type.name + '[]', Type);
 }

@@ -27,10 +27,12 @@ export function toJsonForVue(vm, replacer) {
   return JSON.parse(JSON.stringify(pickData(vm), replacer));
 }
 
-export function calculateMixinsData(config) {
+export function calculateMixinsData(config, before) {
+  before && before(config);
+
   return Object.assign(
-    ...(config.mixins || []).map(calculateMixinsData),
-    typeof config.data === 'function' ? config.data.call(null) : config.data || {}
+    ...(config.mixins || []).map((item) => calculateMixinsData(item, before)),
+    typeof config._original_data_ === 'function' ? config._original_data_.call(null) : config._original_data_ || {}
   );
 }
 

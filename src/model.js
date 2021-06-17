@@ -5,6 +5,8 @@ import { calculateMixinsData, isCarryProxyValue } from './type/vue-utils';
 import { typecheckInternal } from './checker';
 import { isType } from './utils';
 
+const Undf = undefined;
+
 export default class Model {
   constructor() {
     const self = this;
@@ -12,6 +14,17 @@ export default class Model {
     self._dormancy = true;
     self.data = {};
     self._each = self._each.bind(self);
+
+    self._dataTypes = calculateMixinsData(self.constructor.prototype, function(config) {
+      if (!config._original_data_ && config.data) {
+        const data = typeof config.data === 'function' ? config.data.call(null) : config.data;
+        config._original_data_ = config.data;
+        config.data = Object.keys(data).reduce(function(acc, key) {
+          acc[key] = Undf;
+          return acc;
+        }, {});
+      }
+    });
 
     self._each(function(key, dataTypes, defaultValue, isSchema) {
       // if (isComputed) {
@@ -44,7 +57,7 @@ export default class Model {
         dataTypes,
         key,
         isSchema
-          ? val => {
+          ? (val) => {
               if (self._dormancy) return;
 
               if (isCarryProxyValue(val)) {
@@ -72,7 +85,8 @@ export default class Model {
   }
 
   _each(fn) {
-    const dataTypes = this._dataTypes || calculateMixinsData(this.constructor.prototype);
+    const dataTypes = { ...this._dataTypes };
+
 
     for (var key in dataTypes) {
       const result = function(defaultValue) {

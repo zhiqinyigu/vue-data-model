@@ -10,6 +10,9 @@ import { reference } from './reference';
 import { optional } from './optional';
 import { maybe, maybeNull } from './maybe';
 import { late } from './late';
+import { custom } from './custom';
+import { func } from './func';
+import { any } from './any';
 
 export * from './base';
 
@@ -33,4 +36,7 @@ export const types = {
   maybe,
   maybeNull,
   late,
+  custom,
+  func,
+  any
 };
