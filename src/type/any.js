@@ -33,6 +33,6 @@ export class Any extends SimpleType {
 }
 
 export const any = new Any();
-export const anyValule = function(defualtValue) {
+export const anyValue = function(defualtValue) {
   return new Any(defualtValue);
 };
