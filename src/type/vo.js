@@ -5,8 +5,8 @@ import ModelWrapper, { createStateModel } from './vue';
 import { toJsonForMaybeVue } from './vue-utils';
 
 export default class ValueObject extends ComplexType {
-  constructor(defaultValue, config) {
-    super('vo');
+  constructor(name, defaultValue, config) {
+    super(name);
 
     const self = this;
 
@@ -20,9 +20,9 @@ export default class ValueObject extends ComplexType {
       Object.assign({}, config, {
         data() {
           return {
-            value: defaultValue
+            value: defaultValue,
           };
-        }
+        },
       })
     );
 
@@ -41,11 +41,15 @@ export default class ValueObject extends ComplexType {
             ? self._subType.create(value, self)
             : typeof value === typeof defaultValue || typeofForType === 'undefined' || defaultValue === null
             ? value
-            : defaultValue
+            : defaultValue,
         },
         ...other
       );
     };
+  }
+
+  describe() {
+    return this.name;
   }
 
   createNewInstance() {
@@ -71,6 +75,12 @@ export default class ValueObject extends ComplexType {
  * @param {Object} config vue组件定义对象
  * @returns Vue
  */
-export function vo(Type, config) {
-  return new ValueObject(Type, config);
+export function vo(name, Type, config) {
+  if (arguments.length < 3) {
+    config = Type;
+    Type = name;
+    name = 'AnonymousVo';
+  }
+
+  return new ValueObject(name, Type, config);
 }
