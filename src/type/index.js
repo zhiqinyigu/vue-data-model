@@ -12,7 +12,7 @@ import { maybe, maybeNull } from './maybe';
 import { late } from './late';
 import { custom } from './custom';
 import { func } from './func';
-import { any, anyValule } from './any';
+import { any, anyValue } from './any';
 
 export * from './base';
 
@@ -39,5 +39,5 @@ export const types = {
   custom,
   func,
   any,
-  anyValule,
+  anyValue,
 };
