@@ -13,6 +13,7 @@ import { late } from './late';
 import { custom } from './custom';
 import { func } from './func';
 import { any, anyValue } from './any';
+import { enumeration } from './enumeration';
 
 export * from './base';
 
@@ -40,4 +41,5 @@ export const types = {
   func,
   any,
   anyValue,
+  enumeration,
 };
