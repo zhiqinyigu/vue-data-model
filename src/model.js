@@ -26,7 +26,9 @@ export default class Model {
       }
     });
 
-    self._each(function(key, dataTypes, defaultValue, isSchema) {
+    const dataTypesCopy = { ...self._dataTypes };
+
+    self._each(function(key, _dataTypes, defaultValue, isSchema) {
       // if (isComputed) {
       //   const ref = new StoredReference('', defaultValue);
 
@@ -54,7 +56,7 @@ export default class Model {
       // }
       proxy(
         self.data,
-        dataTypes,
+        dataTypesCopy,
         key,
         isSchema
           ? (val) => {
@@ -85,15 +87,14 @@ export default class Model {
   }
 
   _each(fn) {
-    const dataTypes = { ...this._dataTypes };
-
+    const dataTypes = this._dataTypes;
 
     for (var key in dataTypes) {
-      const result = function(defaultValue) {
+      const result = function(key, defaultValue) {
         const isSchema = isType(defaultValue);
         const isComputed = false; // defaultValue instanceof IdentifierReferenceType;
         return fn(key, dataTypes, defaultValue, isSchema, isComputed);
-      }.call(this, dataTypes[key]);
+      }.call(this, key, dataTypes[key]);
 
       if (result === false) break;
     }

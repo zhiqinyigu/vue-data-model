@@ -29,6 +29,21 @@ export function getIdentifier(target) {
   return getTreeNode(target).identifier;
 }
 
+export function getEnv(target) {
+  const node = getTreeNode(target);
+  const env = node.root.environment;
+  if (!env) return {};
+  return env;
+}
+
+export function getRoot(target) {
+  let parent = getTreeNode(target);
+
+  if (parent) {
+    return parent.root.storedValue;
+  }
+}
+
 export function getParent(target, depth) {
   let parent = getTreeNode(target);
 
@@ -41,6 +56,8 @@ export function getParent(target, depth) {
   }
 
   throw fail(
-    `Failed to find the parent of ${JSON.stringify(target.$toValue ? target.$toValue() : target)} at depth ${_depth}`
+    `Failed to find the parent of ${JSON.stringify(
+      target.$toValue ? target.$toValue() : target
+    )} at depth ${_depth}`
   );
 }

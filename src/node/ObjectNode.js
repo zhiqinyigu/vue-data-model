@@ -1,4 +1,4 @@
-import { fail, getVue, normalizeIdentifier } from '../utils';
+import { fail, normalizeIdentifier } from '../utils';
 import { toJSON } from './node-utils';
 import { BaseNode } from './BaseNode';
 import { IdentifierCache } from './identifier-cache';
@@ -13,14 +13,14 @@ export class ObjectNode extends BaseNode {
     this._childNodes = {};
     this._initialSnapshot = initialValue;
 
-    const Vue = getVue();
-    this.vm = new Vue({
-      computed: {
-        snapshot() {
-          return complexType.getSnapshot(self);
-        },
-      },
-    });
+    // const Vue = getVue();
+    // this.vm = new Vue({
+    //   computed: {
+    //     snapshot() {
+    //       return complexType.getSnapshot(self);
+    //     },
+    //   },
+    // });
 
     if (!parent) {
       this.identifierCache = new IdentifierCache();
@@ -89,7 +89,9 @@ export class ObjectNode extends BaseNode {
     super._destroy();
   }
 
+  // @todo 测试
   get snapshot() {
-    return this.vm.snapshot;
+    // return this.vm.snapshot;
+    return this.type.getSnapshot(this);
   }
 }

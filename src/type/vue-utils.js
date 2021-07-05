@@ -3,7 +3,7 @@ import { getTreeNode, isScalarNode } from '../node/node-utils';
 import { getVue } from '../utils';
 
 function desStringify(val) {
-  return JSON.parse(JSON.stringify(val));
+  return val === null || typeof val === 'undefined' ? val : JSON.parse(JSON.stringify(val));
 }
 
 export function isCarryProxyValue(val) {
@@ -32,7 +32,9 @@ export function calculateMixinsData(config, before) {
 
   return Object.assign(
     ...(config.mixins || []).map((item) => calculateMixinsData(item, before)),
-    typeof config._original_data_ === 'function' ? config._original_data_.call(null) : config._original_data_ || {}
+    typeof config._original_data_ === 'function'
+      ? config._original_data_.call(null)
+      : config._original_data_ || {}
   );
 }
 

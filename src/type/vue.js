@@ -2,8 +2,13 @@ import { toJsonForVue } from './vue-utils';
 import { ComplexType } from './base';
 import Model from '../model';
 import Identifier from './identifier';
-import { getVue, isPlainObject } from '../utils';
-import { flattenTypeErrors, getContextForPath, typeCheckFailure, typecheckInternal } from '../checker';
+import { devMode, getVue, isPlainObject } from '../utils';
+import {
+  flattenTypeErrors,
+  getContextForPath,
+  typeCheckFailure,
+  typecheckInternal,
+} from '../checker';
 
 const defaultObjectOptions = { name: 'AnonymousModel' };
 const defaultReplacer = (_, value) => value;
@@ -17,15 +22,15 @@ const baseMixns = {
           }
         }
       }
-    }
-  }
+    },
+  },
 };
 
 function createStateModel(config) {
   class StateModel extends Model {}
 
   Object.assign(StateModel.prototype, config, {
-    mixins: [baseMixns, ...(config.mixins || [])]
+    mixins: [baseMixns, ...(config.mixins || [])],
   });
 
   return StateModel;
@@ -48,11 +53,17 @@ export default class ModelWrapper extends ComplexType {
   }
 
   describe() {
-    return '{ ' + this.propertyNames.map(key => key + ': ' + this.properties[key].describe()).join('; ') + ' }';
+    return (
+      '{ ' +
+      this.propertyNames.map((key) => key + ': ' + this.properties[key].describe()).join('; ') +
+      ' }'
+    );
   }
 
   createNewInstance(initialValue, bindNode) {
-    typecheckInternal(this, initialValue);
+    if (devMode()) {
+      typecheckInternal(this, initialValue);
+    }
 
     const self = this;
     const optionsInstance = new self._model_();
@@ -84,8 +95,8 @@ export default class ModelWrapper extends ComplexType {
           if (this._beforeCreateData) {
             this.$assign(this._beforeCreateData);
           }
-        }
-      }
+        },
+      },
     ].concat(optionsInstance.mixins);
 
     const Vue = getVue();
@@ -108,8 +119,11 @@ export default class ModelWrapper extends ComplexType {
     }
 
     return flattenTypeErrors(
-      this.propertyNames.map(key =>
-        this.properties[key].validate(snapshot[key], getContextForPath(context, key, this.properties[key]))
+      this.propertyNames.map((key) =>
+        this.properties[key].validate(
+          snapshot[key],
+          getContextForPath(context, key, this.properties[key])
+        )
       )
     );
   }

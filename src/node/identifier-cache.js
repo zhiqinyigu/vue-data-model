@@ -8,20 +8,20 @@ export class IdentifierCache {
 
     this.cacheId = identifierCacheId++;
     this.cache = new Map();
-    this.lastCacheModificationPerId = new Vue({
-      data: {
-        sett: {},
-      },
+    this.lastCacheModificationPerId = Vue.observable({
+      sett: {},
     });
   }
 
   updateLastCacheModificationPerId(identifier) {
     const lcm = this.lastCacheModificationPerId.sett[identifier];
-    // we start at 1 since 0 means no update since cache creation
-    this.lastCacheModificationPerId.sett = {
-      ...this.lastCacheModificationPerId.sett,
-      [identifier]: lcm === undefined ? 1 : lcm + 1,
-    };
+    // // we start at 1 since 0 means no update since cache creation
+    // this.lastCacheModificationPerId.sett = {
+    //   ...this.lastCacheModificationPerId.sett,
+    //   [identifier]: lcm === undefined ? 1 : lcm + 1,
+    // };
+
+    getVue().set(this.lastCacheModificationPerId.sett, identifier, lcm === undefined ? 1 : lcm + 1);
   }
 
   getLastCacheModificationPerId(identifier) {
