@@ -1,4 +1,4 @@
-import { getVue } from '../utils';
+import { devMode, getVue } from '../utils';
 
 const dep = {
   Watcher: null,
@@ -30,24 +30,28 @@ export function resolveDep() {
     dep.Dep = demo.obj.__ob__.dep.constructor;
     dep.Observer = demo.$data.__ob__.constructor;
 
+    // pushTarget和popTarget是vue的依赖收集相关方法，但是目前我们无法访问到它们。但一些地方我们需要申请停止依赖收集，如声明周期执行。
+    // 由于vue的源代码里面做这个操作时，使用的是pushTarget()。判断的地方则是if (Dep.target) {...}。
+    // 因此我们可以设置一个falsify值达到同样目的。
     let _target;
-    const targetStack = [];
-
     dep.pushTarget = function pushTarget(target) {
       const { Dep } = dep;
 
-      if (!targetStack.length) {
-        _target = Dep.target;
+      if (devMode()) {
+        if (target) {
+          throw '此pushTarget非彼pushTarget';
+        }
       }
 
-      targetStack.push(target);
-      Dep.target = target;
+      _target = Dep.target;
+      Dep.target = '';
     };
 
     dep.popTarget = function popTarget() {
       const { Dep } = dep;
-      targetStack.pop();
-      Dep.target = targetStack.length ? targetStack[targetStack.length - 1] : _target;
+      if (Dep.target === '') {
+        Dep.target = _target;
+      }
     };
   }
 
