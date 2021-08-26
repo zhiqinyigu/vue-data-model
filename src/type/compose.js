@@ -1,15 +1,15 @@
 import { toArray } from '../utils';
-import { baseMixns, vue } from './vue';
+import { vue } from './vue';
 import { vo } from './vo';
 
 export function getComposeRawMaterial() {
   return Object.assign({
-    mixins: toArray(arguments).map(wrapper => {
-      return {
-        ...wrapper._model_.prototype,
-        mixins: wrapper._model_.prototype.mixins.filter(item => item !== baseMixns)
-      };
-    })
+    mixins: toArray(arguments).map((wrapper) => {
+      const options = Object.assign({}, wrapper.context.options);
+      delete options.mixins;
+      delete options._dataKeys;
+      return options;
+    }),
   });
 }
 

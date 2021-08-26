@@ -1,3 +1,5 @@
+// import { getVue } from './utils';
+
 const { slice } = Array.prototype;
 const toArray = (list) => (list ? slice.call(list) : list);
 
@@ -27,7 +29,11 @@ const variationArrayMethods = {
 
 function VariationArray() {
   var self = new Array(...arguments);
-  Object.setPrototypeOf(self, VariationArray.prototype);
+
+  // const Vue = getVue();
+  // Vue.observable(self);
+
+  // Object.setPrototypeOf(self, VariationArray.prototype);
 
   // vue似乎会对修改数组的原型链
   for (var key in variationArrayMethods) {
@@ -37,9 +43,9 @@ function VariationArray() {
   return self;
 }
 
-Object.setPrototypeOf(VariationArray.prototype, Array.prototype);
+// Object.setPrototypeOf(VariationArray.prototype, Array.prototype);
 
-VariationArray.clone = function (arr, template) {
+VariationArray.clone = function(arr, template) {
   const list = new VariationArray();
 
   if (template) {
@@ -48,7 +54,7 @@ VariationArray.clone = function (arr, template) {
     template.created && template.created.call(list);
   }
 
-  list.push(...Array.prototype.slice.call(arr));
+  list.push(...arr);
   return list;
 };
 

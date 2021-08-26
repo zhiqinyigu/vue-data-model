@@ -33,6 +33,7 @@ export class ObjectNode extends BaseNode {
       if (!value.$treenode) {
         value.$treenode = self;
         value.$toValue = toJSON;
+        value.toJSON = toJSON;
       }
     };
 

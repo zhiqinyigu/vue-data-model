@@ -1,14 +1,15 @@
 import { typeCheckSuccess } from '../checker';
 import { fail, isType } from '../utils';
 import { ComplexType } from './base';
-import ModelWrapper, { createStateModel } from './vue';
+import Model, { mergeConfig } from './vue';
 import { toJsonForMaybeVue } from './vue-utils';
+
+const voPropertyNames = ['value'];
+const voNonPropertyNames = [];
 
 export default class ValueObject extends ComplexType {
   constructor(name, defaultValue, config) {
     super(name);
-
-    const self = this;
 
     if (typeof config === 'undefined') {
       throw fail(
@@ -16,7 +17,7 @@ export default class ValueObject extends ComplexType {
       );
     }
 
-    this._model_ = createStateModel(
+    this.context = mergeConfig(
       Object.assign({}, config, {
         data() {
           return {
@@ -26,34 +27,35 @@ export default class ValueObject extends ComplexType {
       })
     );
 
-    const typeofForType = typeof defaultValue;
-    const _calculateInitializeData = this._model_.prototype._calculateInitializeData;
-
     if (isType(defaultValue)) {
       this._subType = defaultValue;
+      this.propertyNames = voPropertyNames;
+      this.properties = {
+        value: defaultValue,
+      };
+    } else {
+      this.propertyNames = voNonPropertyNames;
     }
-
-    this._model_.prototype._calculateInitializeData = function(value, ...other) {
-      return _calculateInitializeData.call(
-        this,
-        {
-          value: self._subType
-            ? self._subType.create(value, self)
-            : typeof value === typeof defaultValue || typeofForType === 'undefined' || defaultValue === null
-            ? value
-            : defaultValue,
-        },
-        ...other
-      );
-    };
   }
 
   describe() {
     return this.name;
   }
 
+  resolveValue(value) {
+    const defaultValue = this.context.data.value;
+    const typeofForType = typeof defaultValue;
+
+    return {
+      value:
+        this._subType || typeof value === typeof defaultValue || typeofForType === 'undefined' || defaultValue === null
+          ? value
+          : defaultValue,
+    };
+  }
+
   createNewInstance() {
-    return ModelWrapper.prototype.createNewInstance.apply(this, arguments);
+    return Model.prototype.createNewInstance.apply(this, arguments);
   }
 
   getSnapshot(node) {
