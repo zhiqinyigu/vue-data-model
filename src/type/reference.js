@@ -6,6 +6,7 @@ import { isValidIdentifier } from './identifier';
 import { SimpleType } from './base';
 import { createScalarNode } from '../node/create-node';
 import { typeCheckFailure, typecheckInternal, typeCheckSuccess } from '../checker';
+import { Hook } from '../node/hook';
 
 export class StoredReference {
   identifier;
@@ -48,7 +49,7 @@ export class StoredReference {
 
       this.resolvedReference = {
         node: target,
-        lastCacheModification: lastCacheModification
+        lastCacheModification: lastCacheModification,
       };
     }
   }
@@ -60,7 +61,7 @@ function createRef(initialValue, targetType, onChange) {
 
   const vm = new Vue({
     data: {
-      isMounted: false
+      isMounted: false,
     },
     computed: {
       ref() {
@@ -73,11 +74,11 @@ function createRef(initialValue, targetType, onChange) {
 
         onChange && onChange(value);
         return value;
-      }
+      },
     },
     watch: {
-      resolvedValue() {}
-    }
+      resolvedValue() {},
+    },
   });
 
   vm.node = null;
@@ -111,7 +112,7 @@ export class IdentifierReferenceType extends SimpleType {
     typecheckInternal(this, identifier);
 
     let lastVal;
-    const storedRef = createRef(identifier, this.targetType, val => {
+    const storedRef = createRef(identifier, this.targetType, (val) => {
       const key = subpath.match(/([^/]+)$/)[0];
       const parentStoredValue = parent.storedValue;
 
@@ -142,18 +143,17 @@ export class IdentifierReferenceType extends SimpleType {
     storedRefNode.identifier = identifier;
     storedRef.node = storedRefNode;
     storedRef.isMounted = true;
-    this.watchTargetNodeForInvalidations(storedRefNode, identifier, parent);
+    this.watchTargetNodeForInvalidations(storedRefNode, identifier, parent, storedRef);
     return storedRefNode;
   }
 
   // @todo
-  watchTargetNodeForInvalidations(storedRefNode, identifier, parent) {
+  watchTargetNodeForInvalidations(storedRefNode, identifier, parent, storedRef) {
     storedRefNode.root.referenceCache.addRef(storedRefNode, identifier);
-    const _destroy = storedRefNode._destroy;
-    storedRefNode._destroy = function() {
-      _destroy.apply(this, arguments);
+    storedRefNode.registerHook(Hook.beforeDestroy, () => {
       parent.root.referenceCache.removeRefs(this, identifier);
-    };
+      storedRef.$destroy();
+    });
   }
 
   getValue(storedRefNode) {

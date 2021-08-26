@@ -49,7 +49,7 @@ export default class ArrayType extends ComplexType {
                   let needCreatedNode = !(added.length >= i + 1 && isCarryProxyValue(added[i]));
 
                   if (needCreatedNode) {
-                    node.getChildNodes()[start + i]._destroy(node);
+                    node.getChildNodes()[start + i].die();
                     node.removeChildNode(start + i);
                   }
                 }

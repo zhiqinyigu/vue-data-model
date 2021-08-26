@@ -1,8 +1,9 @@
-import { fail, normalizeIdentifier } from '../utils';
+import { devMode, fail, normalizeIdentifier } from '../utils';
 import { toJSON } from './node-utils';
-import { BaseNode } from './BaseNode';
+import { BaseNode, NodeLifeCycle } from './BaseNode';
 import { IdentifierCache } from './identifier-cache';
 import { ReferenceCache } from './reference-cache';
+import { Hook } from './hook';
 
 export class ObjectNode extends BaseNode {
   constructor(complexType, parent, subpath, initialValue, environment) {
@@ -82,12 +83,118 @@ export class ObjectNode extends BaseNode {
     delete this._childNodes[key];
   }
 
-  _destroy() {
-    Object.keys(this._childNodes).forEach((key) => this._childNodes[key]._destroy());
+  getChildren() {
+    const list = this._childNodes;
+    return Object.keys(list).map((key) => list[key]);
+  }
 
+  clearParent() {
+    if (!this.parent) return;
+
+    // detach if attached
+    this.fireHook(Hook.beforeDetach);
+    const previousState = this.state;
+    this.state = NodeLifeCycle.DETACHING;
+
+    const root = this.root;
+    const newEnv = root.environment;
+    const newIdCache = root.identifierCache.splitCache(this);
+
+    try {
+      this.parent.removeChild(this.subpath);
+      this.baseSetParent(null, '');
+      this.environment = newEnv;
+      this.identifierCache = newIdCache;
+    } finally {
+      this.state = previousState;
+    }
+  }
+
+  // setParent(newParent, subpath) {
+  //   const parentChanged = newParent !== this.parent;
+  //   const subpathChanged = subpath !== this.subpath;
+
+  //   if (!parentChanged && !subpathChanged) {
+  //     return;
+  //   }
+
+  //   if (devMode()) {
+  //     if (!subpath) {
+  //       // istanbul ignore next
+  //       throw fail('assertion failed: subpath expected');
+  //     }
+  //     if (!newParent) {
+  //       // istanbul ignore next
+  //       throw fail('assertion failed: new parent expected');
+  //     }
+
+  //     if (this.parent && parentChanged) {
+  //       throw fail(
+  //         `A node cannot exists twice in the state tree. Failed to add ${this} to path '${newParent.path}/${subpath}'.`
+  //       );
+  //     }
+  //     if (!this.parent && newParent.root === this) {
+  //       throw fail(
+  //         `A state tree is not allowed to contain itself. Cannot assign ${this} to path '${newParent.path}/${subpath}'`
+  //       );
+  //     }
+  //     if (!this.parent && !!this.environment && this.environment !== newParent.root.environment) {
+  //       throw fail(
+  //         `A state tree cannot be made part of another state tree as long as their environments are different.`
+  //       );
+  //     }
+  //   }
+
+  //   if (parentChanged) {
+  //     // attach to new parent
+  //     this.environment = undefined; // will use root's
+  //     newParent.root.identifierCache.mergeCache(this);
+  //     this.baseSetParent(newParent, subpath);
+  //     this.fireHook(Hook.afterAttach);
+  //   } else if (subpathChanged) {
+  //     // moving to a new subpath on the same parent
+  //     this.baseSetParent(this.parent, subpath);
+  //   }
+  // }
+
+  fireHook(name) {
+    this.fireInternalHook(name);
+
+    const fn = this.storedValue && typeof this.storedValue === 'object' && this.storedValue[name];
+    if (typeof fn === 'function') {
+      fn.apply(this.storedValue);
+    }
+  }
+
+  detach() {
+    if (!this.isAlive) throw fail(`Error while detaching, node is not alive.`);
+    this.clearParent();
+  }
+
+  die() {
+    if (!this.isAlive || this.state === NodeLifeCycle.DETACHING) return;
+    this.aboutToDie();
+    this.finalizeDeath();
+  }
+
+  aboutToDie() {
+    this.getChildren().forEach((node) => {
+      node.aboutToDie();
+    });
+
+    // beforeDestroy should run before the disposers since else we could end up in a situation where
+    // a disposer added with addDisposer at this stage (beforeDestroy) is actually never released
+    this.baseAboutToDie();
+  }
+
+  finalizeDeath() {
+    // invariant: not called directly but from "die"
+    this.getChildren().forEach((node) => {
+      node.finalizeDeath();
+    });
     this.root.identifierCache.removeNodeToCache(this);
     this.root.referenceCache.updateRefs(this.identifier);
-    super._destroy();
+    this.baseFinalizeDeath();
   }
 
   // @todo 测试

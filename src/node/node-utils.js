@@ -13,6 +13,20 @@ export function isScalarNode(node) {
   return node instanceof ScalarNode;
 }
 
+export function detach(target) {
+  getTreeNode(target).detach();
+  return target;
+}
+
+/**
+ * Removes a model element from the state tree, and mark it as end-of-life; the element should not be used anymore
+ */
+export function destroy(target) {
+  const node = getTreeNode(target);
+  if (node.isRoot) node.die();
+  else if (node.parent) node.parent.removeChild(node.subpath);
+}
+
 export function getTreeNode(value) {
   return value.$treenode;
 }
@@ -56,8 +70,6 @@ export function getParent(target, depth) {
   }
 
   throw fail(
-    `Failed to find the parent of ${JSON.stringify(
-      target.$toValue ? target.$toValue() : target
-    )} at depth ${_depth}`
+    `Failed to find the parent of ${JSON.stringify(target.$toValue ? target.$toValue() : target)} at depth ${_depth}`
   );
 }
