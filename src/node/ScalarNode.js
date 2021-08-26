@@ -1,4 +1,3 @@
-import { devMode, fail } from '../utils';
 import { BaseNode, NodeLifeCycle } from './BaseNode';
 
 export class ScalarNode extends BaseNode {

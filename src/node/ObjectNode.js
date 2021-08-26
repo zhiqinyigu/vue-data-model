@@ -1,4 +1,4 @@
-import { devMode, fail, normalizeIdentifier } from '../utils';
+import { fail, normalizeIdentifier } from '../utils';
 import { toJSON } from './node-utils';
 import { BaseNode, NodeLifeCycle } from './BaseNode';
 import { IdentifierCache } from './identifier-cache';
