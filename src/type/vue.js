@@ -63,6 +63,14 @@ export default class Model extends ComplexType {
     super(config.name || defaultObjectOptions.name);
 
     const properties = (this.properties = {});
+
+    if (config.data && typeof config.data === 'object') {
+      const _data = config.data;
+      config.data = function() {
+        return { ..._data };
+      };
+    }
+
     const { data } = (this.context = mergeConfig(config));
 
     for (let key in data) {

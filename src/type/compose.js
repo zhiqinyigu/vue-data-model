@@ -3,14 +3,14 @@ import { vue } from './vue';
 import { vo } from './vo';
 
 export function getComposeRawMaterial() {
-  return Object.assign({
+  return {
     mixins: toArray(arguments).map((wrapper) => {
       const options = Object.assign({}, wrapper.context.options);
       delete options.mixins;
       delete options._dataKeys;
       return options;
     }),
-  });
+  };
 }
 
 export function compose(...args) {
