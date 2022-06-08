@@ -141,9 +141,9 @@ function createGetterInvoker(fn) {
 }
 
 function initMethods(vm, methods) {
-  const props = vm.$options.props;
   for (const key in methods) {
     if (IS_DEV) {
+      const props = vm.$options.props;
       if (typeof methods[key] !== 'function') {
         warn(
           `Method "${key}" has type "${typeof methods[key]}" in the component definition. ` +

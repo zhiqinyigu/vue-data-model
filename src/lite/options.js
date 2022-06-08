@@ -6,15 +6,17 @@ export function callHookPre(vm, key, handler) {
 }
 
 export function callHook(vm, hook) {
-  // #7573 disable dep collection when invoking lifecycle hooks
-  const { pushTarget, popTarget } = resolveDep();
-
-  pushTarget();
   const handlers = vm.$options[hook];
-  if (handlers) {
-    for (let i = 0, j = handlers.length; i < j; i++) {
+  const len = handlers && handlers.length;
+
+  if (len) {
+    // #7573 disable dep collection when invoking lifecycle hooks
+    const { pushTarget, popTarget } = resolveDep();
+
+    pushTarget();
+    for (let i = 0; i < len; i++) {
       handlers[i].call(vm);
     }
+    popTarget();
   }
-  popTarget();
 }

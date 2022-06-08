@@ -81,3 +81,38 @@ describe('响应式特性', () => {
     ).toContain('2 -> 孩子');
   });
 });
+
+describe('自动管理实例的销毁', () => {
+  let vm;
+
+  beforeEach(() => {
+    vm = Root.create({
+      obj: {
+        child: { name: 'obj child' },
+      },
+      array: [{ name: 'array child' }],
+    });
+  });
+
+  it('基本使用', () => {
+    expect(vm.obj.child.cnName).toBe('obj child -> 孩子');
+
+    const obj = vm.obj;
+    vm.obj = {};
+
+    obj.name = 'obj child2';
+    expect(obj.child._isDestroyed).toBe(true);
+    expect(obj.child.cnName).not.toBe('obj child2 -> 孩子');
+  });
+
+  it('数组使用', () => {
+    expect(vm.array[0].cnName).toBe('array child -> 孩子');
+
+    const array = vm.array;
+    vm.array = [];
+
+    array[0].name = 'array child2';
+    expect(array[0]._isDestroyed).toBe(true);
+    expect(array[0].cnName).not.toBe('array child2 -> 孩子');
+  });
+});

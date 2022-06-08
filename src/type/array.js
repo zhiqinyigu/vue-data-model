@@ -129,10 +129,8 @@ export default class ArrayType extends ComplexType {
  * @returns ArrayType
  * @example
  * const Course = types.vue({
- *  data() {
- *    return {
- *      businessType: 1
- *    }
+ *  data: {
+ *    businessType: 1
  *  }
  * });
  *

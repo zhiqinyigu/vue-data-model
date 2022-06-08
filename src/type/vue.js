@@ -2,6 +2,7 @@ import { isCarryProxyValue, toJsonForVue } from './vue-utils';
 import { LiteVue, resolveContext } from '../lite';
 import { ComplexType } from './base';
 import Identifier from './identifier';
+import { IdentifierReferenceType } from './reference';
 import { devMode, isPlainObject, isType } from '../utils';
 import { flattenTypeErrors, getContextForPath, typeCheckFailure, typecheckInternal } from '../checker';
 import { PROXY_SET_VALUE } from '../constant';
@@ -10,6 +11,10 @@ import { proxy } from '../lite/state';
 
 const defaultObjectOptions = { name: 'AnonymousModel' };
 const defaultReplacer = (_, value) => value;
+
+LiteVue.prototype.beforeDestroy = function() {
+  this.$destroy();
+};
 
 LiteVue.prototype.$assign = function(data, replacer = defaultReplacer) {
   const keys = this.$options._dataKeys;
@@ -29,6 +34,8 @@ function defineProxy(vm, Type, key) {
       delete val[PROXY_SET_VALUE];
       val = value;
     } else {
+      const oldVal = this[`_data`][key];
+      oldVal && getTreeNode(oldVal) && getTreeNode(oldVal).die();
       val = createChildNode(this, Type, key, val).value;
     }
 
