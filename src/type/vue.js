@@ -2,7 +2,6 @@ import { isCarryProxyValue, toJsonForVue } from './vue-utils';
 import { LiteVue, resolveContext } from '../lite';
 import { ComplexType } from './base';
 import Identifier from './identifier';
-import { IdentifierReferenceType } from './reference';
 import { devMode, isPlainObject, isType } from '../utils';
 import { flattenTypeErrors, getContextForPath, typeCheckFailure, typecheckInternal } from '../checker';
 import { PROXY_SET_VALUE } from '../constant';
