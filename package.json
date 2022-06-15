@@ -1,6 +1,6 @@
 {
   "name": "vue-data-model",
-  "version": "1.3.1-beta",
+  "version": "1.3.2-beta",
   "description": "A reactive state container system based on Vue, inspired by mobx-state-tree",
   "main": "dist/vue-data-model.js",
   "directories": {
