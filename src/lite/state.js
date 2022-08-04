@@ -62,11 +62,10 @@ function initData(vm) {
 }
 
 function initComputed(vm, computed) {
-  const { Watcher } = resolveDep();
+  const { Watcher, isSSR } = resolveDep();
   const watchers = (vm._computedWatchers = Object.create(null));
-  // computed properties are just getters during SSR
-  const isSSR = false; // isServerRendering()
 
+  // computed properties are just getters during SSR
   for (const key in computed) {
     const userDef = computed[key];
     const getter = typeof userDef === 'function' ? userDef : userDef.get;
@@ -97,7 +96,8 @@ function initComputed(vm, computed) {
 }
 
 export function defineComputed(target, key, userDef) {
-  const shouldCache = true; // !isServerRendering();
+  const { isSSR } = resolveDep();
+  const shouldCache = !isSSR;
   if (typeof userDef === 'function') {
     sharedPropertyDefinition.get = shouldCache ? createComputedGetter(key) : createGetterInvoker(userDef);
     sharedPropertyDefinition.set = noop;
@@ -126,7 +126,7 @@ function createComputedGetter(key) {
       if (watcher.dirty) {
         watcher.evaluate();
       }
-      if (Dep.target) {
+      if (Dep && Dep.target) {
         watcher.depend();
       }
       return watcher.value;

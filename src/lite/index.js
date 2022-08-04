@@ -41,7 +41,8 @@ export function LiteVue(options, context, handler) {
 
   // a uid
   vm._uid = uid++;
-  vm._isVue = true;
+  vm._isVue = true; // 2.6.x
+  vm.__v_skip = true; // 2.7.x
 
   // expose real self
   // vm._self = vm;

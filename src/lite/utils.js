@@ -7,7 +7,8 @@ export function noop(val) {
 }
 
 export function isObserver(vm) {
-  return vm instanceof resolveDep().Observer;
+  const { Observer } = resolveDep();
+  return Observer && vm instanceof resolveDep().Observer;
 }
 
 /**

@@ -7,6 +7,7 @@ module.exports = {
     filename: 'vue-data-model.js',
     library: 'VDM',
     libraryTarget: 'umd',
+    globalObject: 'this',
   },
   module: {
     rules: [

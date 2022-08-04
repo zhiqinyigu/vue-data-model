@@ -7,12 +7,14 @@ const dep = {
   Observer: null,
   pushTarget: null,
   popTarget: null,
+  isSSR: undefined,
 };
 
+let demo;
 export function resolveDep() {
-  if (!dep.Watcher) {
+  if (!demo) {
     const Vue = getVue();
-    let demo = new Vue({
+    demo = new Vue({
       data: {
         obj: {},
       },
@@ -23,12 +25,13 @@ export function resolveDep() {
       },
     });
 
-    dep.Watcher = demo._computedWatchers.c.constructor;
+    dep.Watcher = demo._computedWatchers.c?.constructor;
     dep.watch = function(vm, expOrFn, cb, options) {
       return demo.$watch.call(vm, expOrFn, cb, options);
     };
-    dep.Dep = demo.obj.__ob__.dep.constructor;
-    dep.Observer = demo.$data.__ob__.constructor;
+    dep.Dep = demo.obj.__ob__?.dep.constructor;
+    dep.Observer = demo.$data.__ob__?.constructor;
+    dep.isSSR = demo.$isServer;
 
     // pushTarget和popTarget是vue的依赖收集相关方法，但是目前我们无法访问到它们。但一些地方我们需要申请停止依赖收集，如声明周期执行。
     // 由于vue的源代码里面做这个操作时，使用的是pushTarget()。判断的地方则是if (Dep.target) {...}。
@@ -36,6 +39,7 @@ export function resolveDep() {
     let _target;
     dep.pushTarget = function pushTarget(target) {
       const { Dep } = dep;
+      if (!Dep) return;
 
       if (devMode()) {
         if (target) {
@@ -49,6 +53,7 @@ export function resolveDep() {
 
     dep.popTarget = function popTarget() {
       const { Dep } = dep;
+      if (!Dep) return;
       if (Dep.target === '') {
         Dep.target = _target;
       }
