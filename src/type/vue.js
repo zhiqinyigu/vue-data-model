@@ -1,85 +1,169 @@
-import Type from '.';
-import Model from '../model';
-import { bindParent, getVue, toJSON } from '../utils';
+import { isCarryProxyValue, toJsonForVue } from './vue-utils';
+import { LiteVue, resolveContext } from '../lite';
+import { ComplexType } from './base';
+import Identifier from './identifier';
+import { devMode, isPlainObject, isType } from '../utils';
+import { flattenTypeErrors, getContextForPath, typeCheckFailure, typecheckInternal } from '../checker';
+import { PROXY_SET_VALUE } from '../constant';
+import { getTreeNode } from '../node/node-utils';
+import { proxy } from '../lite/state';
 
+const defaultObjectOptions = { name: 'AnonymousModel' };
 const defaultReplacer = (_, value) => value;
-const baseMixns = {
-  methods: {
-    $toValue(replacer) {
-      return toJSON(this, replacer);
-    },
-    $assign(data, replacer = defaultReplacer) {
-      if (data && typeof data === 'object') {
-        for (var key in data) {
-          if (key in this.$data) {
-            this[key] = replacer(key, data[key]);
-          }
-        }
-      }
-    },
-  },
+
+LiteVue.prototype.beforeDestroy = function() {
+  this.$destroy();
 };
 
-function createStateModel(config) {
-  class StateModel extends Model {}
+LiteVue.prototype.$assign = function(data, replacer = defaultReplacer) {
+  const keys = this.$options._dataKeys;
+  if (data && typeof data === 'object') {
+    for (var key in data) {
+      if (keys.indexOf(key) !== -1) {
+        this[key] = replacer(key, data[key]);
+      }
+    }
+  }
+};
 
-  Object.assign(StateModel.prototype, config, {
-    mixins: [baseMixns, ...(config.mixins || [])],
+function defineProxy(vm, Type, key) {
+  proxy(vm, `_data`, key, function(val) {
+    if (isCarryProxyValue(val)) {
+      const value = val[PROXY_SET_VALUE];
+      delete val[PROXY_SET_VALUE];
+      val = value;
+    } else {
+      const oldVal = this[`_data`][key];
+      oldVal && getTreeNode(oldVal) && getTreeNode(oldVal).die();
+      val = createChildNode(this, Type, key, val).value;
+    }
+
+    this[`_data`][key] = val;
   });
-
-  return StateModel;
 }
 
-export default class ModelWrapper extends Type {
+function createChildNode(vm, Type, key, val) {
+  typecheckInternal(Type, val);
+
+  const node = getTreeNode(vm);
+  const childNode = Type.instantiate(node, `${node.subpath}/${key}`, val);
+  node.replaceChildNode(key, childNode);
+  return childNode;
+}
+
+export function mergeConfig(config) {
+  config = Object.assign({}, config);
+
+  // const mixins = config.mixins;
+  // config.mixins = [baseMixns];
+
+  // if (mixins) {
+  //   config.mixins.push.apply(config.mixins, mixins);
+  // }
+
+  return resolveContext(config);
+}
+
+export default class Model extends ComplexType {
   constructor(config) {
-    super();
-    this._model_ = createStateModel(config);
+    super(config.name || defaultObjectOptions.name);
+
+    const properties = (this.properties = {});
+
+    if (config.data && typeof config.data === 'object') {
+      const _data = config.data;
+      config.data = function() {
+        return { ..._data };
+      };
+    }
+
+    const { data } = (this.context = mergeConfig(config));
+
+    for (let key in data) {
+      const defaultValue = data[key];
+      if (isType(defaultValue)) {
+        properties[key] = defaultValue;
+        data[key] = undefined;
+
+        if (!this.identifierAttribute && defaultValue instanceof Identifier) {
+          this.identifierAttribute = key;
+        }
+      }
+    }
+
+    this.propertyNames = Object.keys(this.properties);
   }
 
-  create(initialValue, parent) {
+  describe() {
+    return '{ ' + this.propertyNames.map((key) => key + ': ' + this.properties[key].describe()).join('; ') + ' }';
+  }
+
+  resolveValue(value) {
+    return value;
+  }
+
+  createNewInstance(initialValue, bindNode) {
+    if (devMode()) {
+      typecheckInternal(this, initialValue);
+    }
+
+    let vm;
     const self = this;
-    const optionsInstance = new self._model_();
-    let createError;
+    const { context, properties, propertyNames } = this;
+    const data = Object.assign({}, context.data);
 
-    optionsInstance.mixins = [
+    new LiteVue(
+      null,
       {
-        beforeCreate() {
-          this.__model__ = self._model_;
-          optionsInstance.$vm = this;
-          bindParent(this, parent);
-          optionsInstance._dormancy = false;
+        data,
+        options: context.options,
+      },
+      {
+        inited() {
+          vm = this;
+          bindNode && bindNode(vm);
+          const data = self.resolveValue(initialValue);
 
-          try {
-            optionsInstance._calculateInitializeData(initialValue || {});
-          } catch (e) {
-            createError = e;
+          propertyNames.forEach((key) => defineProxy(vm, properties[key], key));
+          vm.$options._dataKeys.forEach((key) => {
+            vm[key] = key in data ? data[key] : key in properties ? undefined : context.data[key];
+          });
+        },
+        created() {
+          if (this._beforeCreateData) {
+            this.$assign(this._beforeCreateData);
           }
         },
-      },
-    ].concat(optionsInstance.mixins);
-
-    const Vue = getVue();
-    const vm = new Vue(optionsInstance);
-
-    if (createError) {
-      throw createError;
-    }
+      }
+    );
 
     return vm;
   }
 
-  is(vm) {
-    if (vm.__model__) {
-      return vm.__model__ === this._model_;
-    } else {
-      try {
-        this.create(vm);
-        return true;
-      } catch (e) {
-        return false;
-      }
+  getSnapshot(node) {
+    return toJsonForVue(node.storedValue);
+  }
+
+  isValidSnapshot(snapshot, context) {
+    if (!isPlainObject(snapshot)) {
+      return typeCheckFailure(context, snapshot, 'Value is not a plain object');
     }
+
+    return flattenTypeErrors(
+      this.propertyNames.map((key) =>
+        this.properties[key].validate(snapshot[key], getContextForPath(context, key, this.properties[key]))
+      )
+    );
   }
 }
 
-export { baseMixns, createStateModel };
+/**
+ * 基于一个 vue 组件定义创建一个类型。
+ * @param {Object} config vue组件定义对象
+ * @returns Model
+ */
+export function vue(...args) {
+  const name = typeof args[0] === 'string' && args.shift();
+  const config = args.shift() || {};
+  return new Model(Object.assign({}, config, { name: name || config.name }));
+}

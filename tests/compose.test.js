@@ -1,4 +1,4 @@
-import { types } from '..';
+import { types } from '../src';
 
 const Biology = types.vue({
   data() {

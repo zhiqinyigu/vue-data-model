@@ -1,15 +1,23 @@
 import { toArray } from '../utils';
-import { baseMixns } from './vue';
+import { vue } from './vue';
+import { vo } from './vo';
 
-const getComposeRawMaterial = function () {
-  return Object.assign({
+export function getComposeRawMaterial() {
+  return {
     mixins: toArray(arguments).map((wrapper) => {
-      return {
-        ...wrapper._model_.prototype,
-        mixins: wrapper._model_.prototype.mixins.filter((item) => item !== baseMixns),
-      };
+      const options = Object.assign({}, wrapper.context.options);
+      delete options.mixins;
+      delete options._dataKeys;
+      return options;
     }),
-  });
-};
+  };
+}
 
-export { getComposeRawMaterial };
+export function compose(...args) {
+  const name = typeof args[0] === 'string' ? args.shift() : 'AnonymousModel(compose)';
+
+  return vue(name, getComposeRawMaterial(...args));
+}
+export function composeVo(...types) {
+  return vo(types[types.length - 1]._subType, getComposeRawMaterial(...types));
+}

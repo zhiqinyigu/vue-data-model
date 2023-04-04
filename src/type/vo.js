@@ -1,56 +1,88 @@
-import Type from '.';
-import ModelWrapper, { createStateModel } from './vue';
+import { typeCheckSuccess } from '../checker';
+import { fail, isType } from '../utils';
+import { ComplexType } from './base';
+import Model, { mergeConfig } from './vue';
+import { toJsonForMaybeVue } from './vue-utils';
 
-export default class ValueObject extends Type {
-  constructor(type, config) {
-    super();
+const voPropertyNames = ['value'];
+const voNonPropertyNames = [];
+
+export default class ValueObject extends ComplexType {
+  constructor(name, defaultValue, config) {
+    super(name);
 
     if (typeof config === 'undefined') {
-      throw new Error(
+      throw fail(
         `expected type or literal as argument 1, vue component options as argument 2, but only one was received.`
       );
     }
 
-    this._model_ = createStateModel(
+    this.context = mergeConfig(
       Object.assign({}, config, {
         data() {
           return {
-            value: type,
+            value: defaultValue,
           };
         },
       })
     );
 
-    this._model_.prototype.mixins.push({
-      methods: {
-        $toValue() {
-          return isSchema ? this.value.$toValue() : this.value;
-        },
-      },
-    });
+    if (isType(defaultValue)) {
+      this._subType = defaultValue;
+      this.propertyNames = voPropertyNames;
+      this.properties = {
+        value: defaultValue,
+      };
+    } else {
+      this.propertyNames = voNonPropertyNames;
+    }
+  }
 
-    const isSchema = type instanceof Type;
-    const typeofForType = typeof type;
-    const _calculateInitializeData = this._model_.prototype._calculateInitializeData;
+  describe() {
+    return this.name;
+  }
 
-    this._model_.prototype._calculateInitializeData = function (value) {
-      return _calculateInitializeData.call(this, {
-        value: isSchema
-          ? type.is(value)
-            ? value
-            : type.create(value, this)
-          : typeof value === typeof type || typeofForType === 'undefined' || type === null
+  resolveValue(value) {
+    const defaultValue = this.context.data.value;
+    const typeofForType = typeof defaultValue;
+
+    return {
+      value:
+        this._subType || typeof value === typeof defaultValue || typeofForType === 'undefined' || defaultValue === null
           ? value
-          : type,
-      });
+          : defaultValue,
     };
   }
 
-  create() {
-    return ModelWrapper.prototype.create.apply(this, arguments);
+  createNewInstance() {
+    return Model.prototype.createNewInstance.apply(this, arguments);
   }
 
-  is(vm) {
-    return ModelWrapper.prototype.is.call(this, vm);
+  getSnapshot(node) {
+    return toJsonForMaybeVue(node.storedValue.value);
   }
+
+  isValidSnapshot(value, context) {
+    if (this._subType) {
+      return this._subType.validate(value, context);
+    }
+
+    return typeCheckSuccess();
+  }
+}
+
+/**
+ * 基于一个 vue 组件定义创建一个类型，类似于`types.vue`，用于创建 _DDD_ 的 _Value Object_。唯一区别`types.vo`不需要接受 data 定义，内部将实际的值放在 value 字段下。
+ * @param {any}    Type   类型对象或其它字面量，表示默认值。
+ * @param {Object} config vue组件定义对象
+ * @returns Vue
+ */
+export function vo(name, Type, config) {
+  if (arguments.length < 3) {
+    config = Type;
+    Type = name;
+    name = 'AnonymousVo';
+  }
+
+  return new ValueObject(name, Type, config);
 }

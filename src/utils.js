@@ -1,8 +1,19 @@
 import Vue from 'vue';
+import { BaseType } from './type';
+import VariationArray from './VariationArray';
 
 let _Vue;
+const plainObjectString = Object.toString();
 
-const slice = Array.prototype.slice;
+export const cannotDetermineSubtype = 'cannotDetermine';
+
+export function isTypeCheckingEnabled() {
+  return devMode() || (typeof process !== 'undefined' && process.env && process.env.ENABLE_TYPE_CHECK === 'true');
+}
+
+export function devMode() {
+  return process.env.NODE_ENV !== 'production';
+}
 
 export function getVue() {
   const lib = _Vue || Vue || window.Vue;
@@ -25,37 +36,137 @@ export function setVue(Vue) {
 }
 
 export function toArray(arr) {
-  return slice.call(arr);
+  return Array.prototype.slice.call(arr);
 }
 
-export function toJSON(vm, replacer) {
-  return JSON.parse(JSON.stringify(pickData(vm), replacer));
+export function normalizeIdentifier(str) {
+  return '' + str;
 }
 
-export function calculateMixinsData(config) {
-  return Object.assign(...(config.mixins || []).map(calculateMixinsData), config.data ? config.data.call(null) : {});
+export function isArray(val) {
+  return Array.isArray(val) || val instanceof VariationArray;
 }
 
-export function applyToJSON(vm) {
-  if (vm instanceof getVue()) {
-    return vm.$toValue ? vm.$toValue() : toJSON(vm);
+export function isPlainObject(value) {
+  if (value === null || typeof value !== 'object') return false;
+  const proto = Object.getPrototypeOf(value);
+  if (proto == null) return true;
+  return proto.constructor && proto.constructor.toString() === plainObjectString;
+}
+
+export function isPrimitive(value, includeDate = true) {
+  if (value === null || value === undefined) return true;
+  if (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    (includeDate && value instanceof Date)
+  )
+    return true;
+  return false;
+}
+
+export function fail(message = 'Illegal state') {
+  return new Error('[vue-data-model] ' + message);
+}
+
+export function isType(value) {
+  return value instanceof BaseType;
+}
+
+export function logError(e) {
+  console.error(e);
+}
+
+/**
+ * @internal
+ * @hidden
+ */
+class EventHandler {
+  constructor() {
+    this.handlers = [];
   }
 
-  return vm;
-}
-
-export function pickData(vm) {
-  const res = {};
-
-  for (var key in vm.$data) {
-    const value = vm[key];
-    res[key] = Array.isArray(value) ? value.map(applyToJSON) : applyToJSON(value);
+  get hasSubscribers() {
+    return this.handlers.length > 0;
   }
 
-  return res;
+  register(fn, atTheBeginning = false) {
+    if (atTheBeginning) {
+      this.handlers.unshift(fn);
+    } else {
+      this.handlers.push(fn);
+    }
+    return () => {
+      this.unregister(fn);
+    };
+  }
+
+  has(fn) {
+    return this.handlers.indexOf(fn) >= 0;
+  }
+
+  unregister(fn) {
+    const index = this.handlers.indexOf(fn);
+    if (index >= 0) {
+      this.handlers.splice(index, 1);
+    }
+  }
+
+  clear() {
+    this.handlers.length = 0;
+  }
+
+  emit(...args) {
+    // make a copy just in case it changes
+    const handlers = this.handlers.slice();
+    handlers.forEach((f) => f(...args));
+  }
 }
 
-export function bindParent(model, context) {
-  model.__parent__ = context;
-  return model;
+export class EventHandlers {
+  hasSubscribers(event) {
+    const handler = this.eventHandlers && this.eventHandlers[event];
+    return !!handler && handler.hasSubscribers;
+  }
+
+  register(event, fn, atTheBeginning = false) {
+    if (!this.eventHandlers) {
+      this.eventHandlers = {};
+    }
+    let handler = this.eventHandlers[event];
+    if (!handler) {
+      handler = this.eventHandlers[event] = new EventHandler();
+    }
+    return handler.register(fn, atTheBeginning);
+  }
+
+  has(event, fn) {
+    const handler = this.eventHandlers && this.eventHandlers[event];
+    return !!handler && handler.has(fn);
+  }
+
+  unregister(event, fn) {
+    const handler = this.eventHandlers && this.eventHandlers[event];
+    if (handler) {
+      handler.unregister(fn);
+    }
+  }
+
+  clear(event) {
+    if (this.eventHandlers) {
+      delete this.eventHandlers[event];
+    }
+  }
+
+  clearAll() {
+    this.eventHandlers = undefined;
+  }
+
+  emit(event, ...args) {
+    const handler = this.eventHandlers && this.eventHandlers[event];
+    if (handler) {
+      handler.emit(...args);
+    }
+  }
 }
