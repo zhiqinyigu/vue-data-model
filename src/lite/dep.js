@@ -8,6 +8,7 @@ const dep = {
   pushTarget: null,
   popTarget: null,
   isSSR: undefined,
+  EffectScope: undefined,
 };
 
 let demo;
@@ -26,6 +27,7 @@ export function resolveDep() {
     });
 
     dep.Watcher = demo._computedWatchers.c?.constructor;
+    dep.EffectScope = demo._scope?.constructor;
     dep.watch = function(vm, expOrFn, cb, options) {
       return demo.$watch.call(vm, expOrFn, cb, options);
     };

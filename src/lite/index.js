@@ -1,4 +1,5 @@
 import { getVue } from '../utils';
+import { resolveDep } from './dep';
 import { callHook, callHookPre } from './options';
 import { initLifecycle, initState } from './state';
 
@@ -35,6 +36,7 @@ export function resolveContext(options) {
 
 export function LiteVue(options, context, handler) {
   const vm = this;
+  const { EffectScope } = resolveDep();
 
   context = context || resolveContext(options);
   vm.$options = context.options;
@@ -44,6 +46,11 @@ export function LiteVue(options, context, handler) {
   vm._isVue = true; // 2.6.x
   vm.__v_skip = true; // 2.7.x
 
+  if (EffectScope) {
+    vm._scope = new EffectScope(true /* detached */);
+    vm._scope._vm = true;
+  }
+  
   // expose real self
   // vm._self = vm;
   initLifecycle(vm);
