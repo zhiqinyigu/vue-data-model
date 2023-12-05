@@ -19,7 +19,14 @@ export function toJsonForMaybeVue(val) {
 }
 
 export function toJsonForVue(vm, replacer) {
-  return JSON.parse(JSON.stringify(pickData(vm), replacer));
+  const json = JSON.parse(JSON.stringify(pickData(vm), replacer));
+  vm.$options._dataKeys.forEach(function (key) {
+    if (!(key in json)) {
+      json[key] = undefined;
+    }
+  });
+
+  return json;
 }
 
 function pickData(vm) {
