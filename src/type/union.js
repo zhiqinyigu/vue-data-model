@@ -15,7 +15,19 @@ export default class Union extends ComplexType {
 
   instantiate(parent, subpath, initialValue, environment) {
     const type = this.determineType(initialValue, undefined);
-    if (!type) throw fail('No matching type for union ' + this.describe());
+    if (!type) {
+      let errMsg =
+        `No matching type for union ${this.describe()}. ` +
+        `Find the '${JSON.stringify(initialValue)}' under the path '${subpath}'`;
+
+      try {
+        errMsg += `, parent are like '${JSON.stringify(parent.snapshot)}'.`;
+      } catch (e) {
+        /* empty */
+      }
+
+      throw fail(errMsg);
+    }
     return type.instantiate(parent, subpath, initialValue, environment);
   }
 
