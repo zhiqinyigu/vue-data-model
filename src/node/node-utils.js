@@ -43,6 +43,23 @@ export function getIdentifier(target) {
   return getTreeNode(target).identifier;
 }
 
+export function newChildNode(parent, childPath, item, Type) {
+  let childNode = getTreeNodeSafe(item);
+  if (childNode) {
+    if (childNode.parent) {
+      throw fail(
+        'Cannot add an object to a state tree if it is already part of the same or another state tree.' /* Tried to assign an object to \'/tweets/0\', but it lives already at \'/tweets/1\' */
+      );
+    } else {
+      childNode.baseSetParent(parent, childPath);
+    }
+  } else {
+    childNode = Type.instantiate(parent, childPath, item);
+  }
+
+  return childNode;
+}
+
 export function getEnv(target) {
   const node = getTreeNode(target);
   const env = node.root.environment;

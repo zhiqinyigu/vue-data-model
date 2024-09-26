@@ -1,5 +1,5 @@
 import { PROXY_SET_VALUE } from '../constant';
-import { getTreeNode, isScalarNode } from '../node/node-utils';
+import { getTreeNode, isScalarNode, newChildNode } from '../node/node-utils';
 import { isCarryProxyValue, toJsonForMaybeVue } from './vue-utils';
 import { fail, isArray } from '../utils';
 import { ComplexType } from './base';
@@ -92,7 +92,7 @@ export default class ArrayType extends ComplexType {
           return value;
         }
 
-        const childNode = Type.instantiate(node, `${node.subpath}/${index}`, item);
+        const childNode = newChildNode(node, `${node.subpath}/${index}`, item, Type);
         node.replaceChildNode(index, childNode);
 
         return childNode.value;

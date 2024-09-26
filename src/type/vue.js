@@ -5,7 +5,7 @@ import Identifier from './identifier';
 import { devMode, isPlainObject, isType } from '../utils';
 import { flattenTypeErrors, getContextForPath, typeCheckFailure, typecheckInternal } from '../checker';
 import { PROXY_SET_VALUE } from '../constant';
-import { getTreeNode } from '../node/node-utils';
+import { getTreeNode, newChildNode } from '../node/node-utils';
 import { proxy } from '../lite/state';
 
 const defaultObjectOptions = { name: 'AnonymousModel' };
@@ -46,7 +46,8 @@ function createChildNode(vm, Type, key, val) {
   typecheckInternal(Type, val);
 
   const node = getTreeNode(vm);
-  const childNode = Type.instantiate(node, `${node.subpath}/${key}`, val);
+
+  const childNode = newChildNode(node, `${node.subpath}/${key}`, val, Type);
   node.replaceChildNode(key, childNode);
   return childNode;
 }
