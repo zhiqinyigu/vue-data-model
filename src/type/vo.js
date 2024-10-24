@@ -7,6 +7,15 @@ import { toJsonForMaybeVue } from './vue-utils';
 const voPropertyNames = ['value'];
 const voNonPropertyNames = [];
 
+const simpleTypeMethods = {
+  toString() {
+    return this.value + '';
+  },
+  valueOf() {
+    return this.value;
+  },
+};
+
 export default class ValueObject extends ComplexType {
   constructor(name, defaultValue, config) {
     super(name);
@@ -17,15 +26,17 @@ export default class ValueObject extends ComplexType {
       );
     }
 
-    this.context = mergeConfig(
-      Object.assign({}, config, {
-        data() {
-          return {
-            value: defaultValue,
-          };
-        },
-      })
-    );
+    const comp = Object.assign({}, config, {
+      data() {
+        return {
+          value: defaultValue,
+        };
+      },
+    });
+
+    comp.methods = Object.assign(comp.methods || {}, simpleTypeMethods);
+
+    this.context = mergeConfig(comp);
 
     if (isType(defaultValue)) {
       this._subType = defaultValue;

@@ -57,6 +57,7 @@ describe('类型系统支持', () => {
     expect(vm.email.value).toBe(testEmail);
     expect(vm.email.length).toBe(testEmail.length);
     expect(vm.email.isVaild).toBe(true);
+    expect(vm.email == testEmail).toBe(true);
   });
 
   it('对象值初始化', () => {
