@@ -27,29 +27,33 @@ export default class ArrayType extends ComplexType {
         bindNode && bindNode(this);
       },
       _willChange(action, args) {
-        const node = getTreeNode(this);
-        const size = this.length;
+        const This = this;
+        const node = getTreeNode(This);
+        const size = This.length;
 
         switch (action) {
-          case 'splice':
+          case 'splice': {
             (function() {
               let [start, removeCount, ...added] = args;
               let realremoveCount = 0;
               const addedSize = added.length;
+              const childNodes = node.getChildNodes();
 
               if (typeof start === 'number') {
-                removeCount = typeof removeCount === 'number' ? removeCount : Infinity;
+                removeCount = typeof removeCount === 'number' ? removeCount : size - start;
 
                 // 删除removeCount个数量
                 for (let i = removeCount - 1; i >= 0; i--) {
-                  if (start + i > size) return;
+                  if (start + i > size) break;
 
                   realremoveCount++;
 
-                  let needCreatedNode = !(added.length >= i + 1 && isCarryProxyValue(added[i]));
+                  const hasCorrespondingAddedItem = addedSize > i;
+                  const isAddedItemProxy = hasCorrespondingAddedItem && isCarryProxyValue(added[i]);
+                  const needCreatedNode = !isAddedItemProxy;
 
                   if (needCreatedNode) {
-                    node.getChildNodes()[start + i].die();
+                    childNodes[start + i].die();
                     node.removeChildNode(start + i);
                   }
                 }
@@ -62,7 +66,7 @@ export default class ArrayType extends ComplexType {
                   let to = start + addedSize - 1 + j;
 
                   if (from !== to) {
-                    tmpMove[to] = node.getChildNodes()[from];
+                    tmpMove[to] = childNodes[from];
                     node.removeChildNode(from);
                   }
                 }
@@ -72,6 +76,7 @@ export default class ArrayType extends ComplexType {
             })();
 
             break;
+          }
         }
       },
       _overwriteParams(item, index, action, args) {

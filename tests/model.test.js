@@ -106,13 +106,26 @@ describe('自动管理实例的销毁', () => {
   });
 
   it('数组使用', () => {
-    expect(vm.array[0].cnName).toBe('array child -> 孩子');
+    const child1 = vm.array[0];
 
-    const array = vm.array;
+    expect(child1.cnName).toBe('array child -> 孩子');
+
     vm.array = [];
+    child1.name = 'array child2';
 
-    array[0].name = 'array child2';
-    expect(array[0]._isDestroyed).toBe(true);
-    expect(array[0].cnName).not.toBe('array child2 -> 孩子');
+    expect(child1._isDestroyed).toBe(true);
+    expect(child1.cnName).not.toBe('array child2 -> 孩子');
+  });
+
+  it('数组splice', () => {
+    const child1 = vm.array[0];
+
+    expect(child1.cnName).toBe('array child -> 孩子');
+
+    vm.array.splice(0, 1);
+    child1.name = 'array child2';
+
+    expect(child1._isDestroyed).toBe(true);
+    expect(child1.cnName).not.toBe('array child2 -> 孩子');
   });
 });
